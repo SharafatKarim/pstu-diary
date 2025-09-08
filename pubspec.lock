@@ -137,6 +137,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.8"
+  dotenv:
+    dependency: "direct main"
+    description:
+      name: dotenv
+      sha256: "379e64b6fc82d3df29461d349a1796ecd2c436c480d4653f3af6872eccbc90e1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.2.0"
   email_validator:
     dependency: transitive
     description:
@@ -691,7 +699,7 @@ packages:
     source: hosted
     version: "0.5.5"
   supabase_flutter:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: supabase_flutter
       sha256: f7eefb065f00f947a8f2d0fbb4be3e687ed7165e80c798bc8c4f0d4295855c51
