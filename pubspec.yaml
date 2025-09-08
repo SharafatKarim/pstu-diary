@@ -35,6 +35,8 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: any
+  go_router: ^16.2.1
+  supabase_auth_ui: ^0.5.5
 
 dev_dependencies:
   flutter_test:
