@@ -1,20 +1,18 @@
-import 'dart:developer' as developer;
-
 import 'package:diary/router.dart';
 import 'package:diary/shared/constants.dart';
 import 'package:diary/l10n/app_localizations.dart';
-import 'package:dotenv/dotenv.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
-  var env = DotEnv(includePlatformEnvironment: true)..load();
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   await Supabase.initialize(
-    url: env['SUPABASE_URL'] ?? '',
-    anonKey: env['SUPABASE_ANON_KEY'] ?? '',
+    url: dotenv.env['SUPABASE_URL'] ?? '',
+    anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
   );
 
-  developer.log("Starting app...");
   runApp(const MyApp());
 }
 

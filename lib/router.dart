@@ -19,7 +19,7 @@ final router = GoRouter(
       builder: (context, state) => const AdminHome(),
     ),
   ],
-  initialLocation: '/',
+  initialLocation: '/signup',
   errorBuilder: (context, state) => Scaffold(
     body: Center(
       child: Text(state.error.toString()),
