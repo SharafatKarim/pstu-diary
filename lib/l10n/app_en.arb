@@ -1,0 +1,8 @@
+{
+  "title": "PSTU Diary",
+  "helloWorld": "Hello World!",
+  "displayText":"This is a sample App",
+  "@helloWorld": {
+    "description": "SampleApp for PSTU Diary"
+  }
+}
