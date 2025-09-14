@@ -16,4 +16,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get displayText => 'This is a sample App';
+
+  @override
+  String get description =>
+      'PSTU Diary is a cross-platform application designed to help students and faculty members of Patuakhali Science and Technology University (PSTU) efficiently access resources and contact information of various departments, faculties, and administrative offices. The app aims to provide a user-friendly interface for quick navigation and retrieval of essential information, enhancing the overall experience of the university community.';
 }

@@ -8,21 +8,34 @@ class SignUpPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Admin | Sign Up'),
-      ),
+      appBar: AppBar(title: const Text('Admin Access')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SupaEmailAuth(
           onSignInComplete: (response) {
-            context.go('/home');
+            context.go('/admin');
           },
           onSignUpComplete: (response) {
-            if (response.session != null) {
-              Supabase.instance.client.auth.setSession(response.session! as String);
-              context.go('/home');
-            }
+            context.go('/admin');
           },
+          metadataFields: [
+            MetaDataField(
+              prefixIcon: const Icon(Icons.person),
+              label: 'Username',
+              key: 'username',
+              validator: (val) {
+                if (val == null || val.isEmpty) {
+                  return 'Please enter something';
+                }
+                return null;
+              },
+            ),
+            BooleanMetaDataField(
+              label: 'I agree not to do any harmful activities',
+              key: 'user_agreement',
+              checkboxPosition: ListTileControlAffinity.leading,
+            ),
+          ],
         ),
       ),
     );

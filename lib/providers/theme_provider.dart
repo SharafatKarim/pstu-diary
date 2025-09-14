@@ -55,7 +55,7 @@ class ThemeProvider with ChangeNotifier {
 
   Future<void> setPrimaryColor(Color color) async {
     _primaryColor = color;
-    await sharedPreferences.setInt(_primaryColorKey, color.value);
+    await sharedPreferences.setInt(_primaryColorKey, color.hashCode);
     notifyListeners();
   }
 }
