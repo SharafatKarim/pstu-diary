@@ -33,7 +33,7 @@ class ResponsiveLayout extends StatelessWidget {
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.admin_panel_settings_outlined),
-                  label: 'Administer',
+                  label: 'Administor',
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.home_repair_service_sharp),
@@ -65,7 +65,7 @@ class ResponsiveLayout extends StatelessWidget {
                     ),
                     NavigationRailDestination(
                       icon: Icon(Icons.admin_panel_settings_outlined),
-                      label: Text('Administer'),
+                      label: Text('Administor'),
                     ),
                     NavigationRailDestination(
                       icon: Icon(Icons.home_repair_service_sharp),
@@ -104,7 +104,7 @@ class ResponsiveLayout extends StatelessWidget {
                     ),
                     NavigationRailDestination(
                       icon: Icon(Icons.admin_panel_settings_outlined),
-                      label: Text('Administer'),
+                      label: Text('Administor'),
                     ),
                     NavigationRailDestination(
                       icon: Icon(Icons.home_repair_service_sharp),

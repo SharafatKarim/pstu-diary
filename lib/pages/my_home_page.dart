@@ -1,5 +1,5 @@
 // import 'package:diary/l10n/app_localizations.dart';
-import 'package:diary/pages/administer.dart';
+import 'package:diary/pages/administor.dart';
 import 'package:diary/pages/extras.dart';
 import 'package:diary/pages/faculties.dart';
 import 'package:diary/pages/services.dart';
@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
-  
+
   @override
   State<StatefulWidget> createState() {
     return _MyHomePageState();
@@ -17,11 +17,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-    int _selectedIndex = 0;
+  int _selectedIndex = 0;
 
   final List<Widget> _screens = [
     const Faculties(),
-    const Administer(),
+    const Administor(),
     const Services(),
     const Extras(),
     const Settings(),
