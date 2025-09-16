@@ -43,6 +43,7 @@ class MyApp extends StatelessWidget {
             theme: themeProvider.themeData,
             darkTheme: themeProvider.darkThemeData,
             themeMode: themeProvider.themeMode,
+            debugShowCheckedModeBanner: false,
             onGenerateTitle: (context) =>
                 AppLocalizations.of(context)!.helloWorld,
             localizationsDelegates: AppLocalizations.localizationsDelegates,

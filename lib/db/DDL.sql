@@ -25,10 +25,62 @@ create trigger on_auth_user_created
 after insert on auth.users
 for each row execute function public.handle_new_user();
 
--- Enable read access for all users
-alter policy "Enable read access for all users"
+-- Policies
+alter table public.profiles enable row level security;
+drop policy if exists "Enable read access for all users" on public.profiles;
+create policy "Enable read access for all users"
   on "public"."profiles"
   to public
   using (
     true
+  );
+
+drop policy if exists "Admins can insert profiles" on public.profiles;
+create policy "Admins can insert profiles"
+  on public.profiles
+  for insert
+  to authenticated
+  with check (
+    exists (
+      select 1
+      from public.profiles p
+      where p.id = auth.uid()
+        and p.role = 'admin'
+    )
+  );
+
+drop policy if exists "Admins can update profiles" on public.profiles;
+create policy "Admins can update profiles"
+  on public.profiles
+  for update
+  to authenticated
+  using (
+    exists (
+      select 1
+      from public.profiles p
+      where p.id = auth.uid()
+        and p.role = 'admin'
+    )
+  )
+  with check (
+    exists (
+      select 1
+      from public.profiles p
+      where p.id = auth.uid()
+        and p.role = 'admin'
+    )
+  );
+
+drop policy if exists "Admins can delete profiles" on public.profiles;
+create policy "Admins can delete profiles"
+  on public.profiles
+  for delete
+  to authenticated
+  using (
+    exists (
+      select 1
+      from public.profiles p
+      where p.id = auth.uid()
+        and p.role = 'admin'
+    )
   );
