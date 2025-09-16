@@ -15,31 +15,33 @@ class _AdminHomeState extends State<AdminHome> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (supabase.auth.currentSession == null) {
+        context.go('/signup');
+      } else {
+        _checkRole();
+      }
+    });
+  }
 
-    if (supabase.auth.currentSession == null) {
-      context.go('/signup');
+  Future<void> _checkRole() async {
+    try {
+      final role = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', supabase.auth.currentSession!.user.id)
+          .single();
+
+      developer.log('role: $role');
+      if (role['role'] != 'admin') {
+        if (!mounted) return;
+        context.go('/no-access');
+      }
+    } catch (e) {
+      developer.log('Error fetching role: $e');
+      if (!mounted) return;
+      context.go('/no-access');
     }
-
-    final role = supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', supabase.auth.currentSession!.user.id)
-        .single();
-    var userRole = supabase.from('profiles').select().eq('id', supabase.auth.currentSession!.user.id.toString()).single();
-
-    developer.log(role.toString());
-    developer.log(userRole.toString());
-
-    // userRole.then((value) {
-      // developer.log(value.toString());
-      // Uncomment the following lines to enforce admin access
-    //   if (value['role'] != 'admin') {
-    //     ScaffoldMessenger.of(context).showSnackBar(
-    //       SnackBar(content: Text('You are not authorized to access this page')),
-    //     );
-    //     context.go('/signup');
-    //   }
-    // });
   }
 
   @override

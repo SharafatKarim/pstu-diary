@@ -9,33 +9,47 @@ class SignUpPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Admin Access')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SupaEmailAuth(
-          onSignInComplete: (response) {
-            context.go('/admin');
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 480),
+                    child: SupaEmailAuth(
+                      onSignInComplete: (response) {
+                        context.go('/admin');
+                      },
+                      onSignUpComplete: (response) {
+                        context.go('/admin');
+                      },
+                      metadataFields: [
+                        MetaDataField(
+                          prefixIcon: const Icon(Icons.person),
+                          label: 'Username',
+                          key: 'username',
+                          validator: (val) {
+                            if (val == null || val.isEmpty) {
+                              return 'Please enter something';
+                            }
+                            return null;
+                          },
+                        ),
+                        BooleanMetaDataField(
+                          label: 'I agree not to do any harmful activities',
+                          key: 'user_agreement',
+                          checkboxPosition: ListTileControlAffinity.leading,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
           },
-          onSignUpComplete: (response) {
-            context.go('/admin');
-          },
-          metadataFields: [
-            MetaDataField(
-              prefixIcon: const Icon(Icons.person),
-              label: 'Username',
-              key: 'username',
-              validator: (val) {
-                if (val == null || val.isEmpty) {
-                  return 'Please enter something';
-                }
-                return null;
-              },
-            ),
-            BooleanMetaDataField(
-              label: 'I agree not to do any harmful activities',
-              key: 'user_agreement',
-              checkboxPosition: ListTileControlAffinity.leading,
-            ),
-          ],
         ),
       ),
     );
