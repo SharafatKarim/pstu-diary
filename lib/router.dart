@@ -12,7 +12,7 @@ final router = GoRouter(
     GoRoute(path: '/admin', builder: (context, state) => const AdminHome()),
     GoRoute(path: '/no-access', builder: (context, state) => const NoAccess()),
   ],
-  initialLocation: '/admin',
+  initialLocation: '/',
   errorBuilder: (context, state) =>
       Scaffold(body: Center(child: Text(state.error.toString()))),
 );
