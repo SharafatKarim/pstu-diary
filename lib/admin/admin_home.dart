@@ -54,7 +54,7 @@ final List<TableModel> databaseTables = [
     icon: Icons.person,
     columns: ['id', 'username', 'role'],
     primaryKey: 'id',
-    description: 'User profiles and roles',
+    description: 'User profiles and roles for admin access!',
     plutoColumns: [
       PlutoColumn(
         title: 'ID',
@@ -95,12 +95,22 @@ final List<TableModel> databaseTables = [
       PlutoColumn(
         title: 'Faculty',
         field: 'faculty',
-        type: PlutoColumnType.text(),
+        type: PlutoColumnType.select(<String>[
+          'কম্পিউটার সায়েন্স এন্ড ইঞ্জিনিয়ারিং',
+          'এগ্রিকালচার',
+          'বিজনেস এডমিনিস্ট্রেশন',
+          'এনিমাল সায়েন্স এন্ড ভেটেরিনারি মেডিসিন',
+          'ফিশারিজ',
+          'এনভায়রনমেন্টাল সায়েন্স এন্ড ডিজাস্টার ম্যানজমেন্ট',
+          'নিউট্রেশন এন্ড ফুড সায়েন্স',
+          'ল এন্ড ল্যান্ড এডমিনিস্ট্রেশন',
+          'পোস্টগ্র্যাজুয়েট স্টাডিজ',
+        ]),
       ),
       PlutoColumn(
         title: 'Department',
         field: 'department',
-        type: PlutoColumnType.text(),
+        type: PlutoColumnType.select(<String>['ডিন অফিস', 'ডিন']),
       ),
     ],
   ),
@@ -144,7 +154,17 @@ final List<TableModel> databaseTables = [
       PlutoColumn(
         title: 'Faculty',
         field: 'faculty',
-        type: PlutoColumnType.text(),
+        type: PlutoColumnType.select(<String>[
+          'কম্পিউটার সায়েন্স এন্ড ইঞ্জিনিয়ারিং',
+          'এগ্রিকালচার',
+          'বিজনেস এডমিনিস্ট্রেশন',
+          'এনিমাল সায়েন্স এন্ড ভেটেরিনারি মেডিসিন',
+          'ফিশারিজ',
+          'এনভায়রনমেন্টাল সায়েন্স এন্ড ডিজাস্টার ম্যানজমেন্ট',
+          'নিউট্রেশন এন্ড ফুড সায়েন্স',
+          'ল এন্ড ল্যান্ড এডমিনিস্ট্রেশন',
+          'পোস্টগ্র্যাজুয়েট স্টাডিজ',
+        ]),
       ),
       PlutoColumn(
         title: 'Priority',
@@ -177,7 +197,17 @@ final List<TableModel> databaseTables = [
       PlutoColumn(
         title: 'Faculty',
         field: 'faculty',
-        type: PlutoColumnType.text(),
+        type: PlutoColumnType.select(<String>[
+          'কম্পিউটার সায়েন্স এন্ড ইঞ্জিনিয়ারিং',
+          'এগ্রিকালচার',
+          'বিজনেস এডমিনিস্ট্রেশন',
+          'এনিমাল সায়েন্স এন্ড ভেটেরিনারি মেডিসিন',
+          'ফিশারিজ',
+          'এনভায়রনমেন্টাল সায়েন্স এন্ড ডিজাস্টার ম্যানজমেন্ট',
+          'নিউট্রেশন এন্ড ফুড সায়েন্স',
+          'ল এন্ড ল্যান্ড এডমিনিস্ট্রেশন',
+          'পোস্টগ্র্যাজুয়েট স্টাডিজ',
+        ]),
       ),
       PlutoColumn(
         title: 'Department',
@@ -205,7 +235,17 @@ final List<TableModel> databaseTables = [
       PlutoColumn(
         title: 'Faculty',
         field: 'faculty',
-        type: PlutoColumnType.text(),
+        type: PlutoColumnType.select(<String>[
+          'কম্পিউটার সায়েন্স এন্ড ইঞ্জিনিয়ারিং',
+          'এগ্রিকালচার',
+          'বিজনেস এডমিনিস্ট্রেশন',
+          'এনিমাল সায়েন্স এন্ড ভেটেরিনারি মেডিসিন',
+          'ফিশারিজ',
+          'এনভায়রনমেন্টাল সায়েন্স এন্ড ডিজাস্টার ম্যানজমেন্ট',
+          'নিউট্রেশন এন্ড ফুড সায়েন্স',
+          'ল এন্ড ল্যান্ড এডমিনিস্ট্রেশন',
+          'পোস্টগ্র্যাজুয়েট স্টাডিজ',
+        ]),
       ),
       PlutoColumn(
         title: 'Department',
@@ -314,7 +354,17 @@ final List<TableModel> databaseTables = [
       PlutoColumn(
         title: 'Faculty',
         field: 'faculty_name',
-        type: PlutoColumnType.text(),
+        type: PlutoColumnType.select(<String>[
+          'কম্পিউটার সায়েন্স এন্ড ইঞ্জিনিয়ারিং',
+          'এগ্রিকালচার',
+          'বিজনেস এডমিনিস্ট্রেশন',
+          'এনিমাল সায়েন্স এন্ড ভেটেরিনারি মেডিসিন',
+          'ফিশারিজ',
+          'এনভায়রনমেন্টাল সায়েন্স এন্ড ডিজাস্টার ম্যানজমেন্ট',
+          'নিউট্রেশন এন্ড ফুড সায়েন্স',
+          'ল এন্ড ল্যান্ড এডমিনিস্ট্রেশন',
+          'পোস্টগ্র্যাজুয়েট স্টাডিজ',
+        ]),
       ),
       PlutoColumn(
         title: 'Priority',
@@ -878,12 +928,60 @@ class _AdminTableViewState extends State<_AdminTableView> {
                       for (final col in editableColumns)
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 6.0),
-                          child: TextFormField(
-                            controller: controllers[col.field],
-                            decoration: InputDecoration(
-                              labelText: col.title,
-                              border: const OutlineInputBorder(),
-                            ),
+                          child: Builder(
+                            builder: (context) {
+                              final type = col.type;
+                              // If column is a select, render a dropdown with the provided items.
+                              if (type is PlutoColumnTypeSelect) {
+                                final List<dynamic> rawItems = type.items;
+                                final items = rawItems
+                                    .map((e) => e?.toString() ?? '')
+                                    .where((s) => s.isNotEmpty)
+                                    .toList();
+                                final currentText = controllers[col.field]!.text
+                                    .trim();
+                                final currentValue =
+                                    currentText.isEmpty ||
+                                        !items.contains(currentText)
+                                    ? null
+                                    : currentText;
+                                return DropdownButtonFormField<String>(
+                                  initialValue: currentValue,
+                                  items: items
+                                      .map(
+                                        (e) => DropdownMenuItem<String>(
+                                          value: e,
+                                          child: Text(e),
+                                        ),
+                                      )
+                                      .toList(),
+                                  onChanged: (val) {
+                                    setS(
+                                      () => controllers[col.field]!.text =
+                                          val ?? '',
+                                    );
+                                  },
+                                  decoration: InputDecoration(
+                                    labelText: col.title,
+                                    border: const OutlineInputBorder(),
+                                  ),
+                                );
+                              }
+
+                              // Fallback: regular text field for non-select types.
+                              return TextFormField(
+                                controller: controllers[col.field],
+                                keyboardType: type is PlutoColumnTypeNumber
+                                    ? const TextInputType.numberWithOptions(
+                                        decimal: true,
+                                      )
+                                    : null,
+                                decoration: InputDecoration(
+                                  labelText: col.title,
+                                  border: const OutlineInputBorder(),
+                                ),
+                              );
+                            },
                           ),
                         ),
                       if (error != null) ...[
@@ -939,6 +1037,7 @@ class _AdminTableViewState extends State<_AdminTableView> {
       );
       _stateManager!.prependRows([newRow]);
       _stateManager!.setCurrentCell(newRow.cells.values.first, 0);
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Row created')));
@@ -988,10 +1087,12 @@ class _AdminTableViewState extends State<_AdminTableView> {
       await supabase.from(widget.table.name).delete().inFilter(pk, ids);
 
       _stateManager!.removeRows(checked);
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Deleted ${ids.length} row(s)')));
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Delete failed: $e')));
