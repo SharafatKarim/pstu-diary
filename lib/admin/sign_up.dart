@@ -9,6 +9,10 @@ class SignUpPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Admin Access')),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => context.canPop() ? context.pop() : context.go('/'),
+        child: const Icon(Icons.home),
+      ),
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {

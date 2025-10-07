@@ -40,6 +40,7 @@ class _SettingsState extends State<Settings> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
+    // TODO: Set some settings via SettingsProvider
     final settingsProvider = Provider.of<SettingsProvider>(context);
 
     const contentPadding = EdgeInsets.symmetric(horizontal: 16, vertical: 20);
@@ -128,7 +129,7 @@ class _SettingsState extends State<Settings> {
             title: const Text('Admin Login'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              context.go('/signup');
+              context.push('/signup');
             },
           ),
         ]),
