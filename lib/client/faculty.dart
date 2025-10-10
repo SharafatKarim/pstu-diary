@@ -1,7 +1,6 @@
 import 'package:diary/main.dart';
 import 'package:flutter/material.dart';
-
-// TODO: Search bar + copy to clipboard for phone numbers and emails
+import 'package:flutter/services.dart';
 
 class Faculty extends StatefulWidget {
   final String facultyName;
@@ -89,21 +88,9 @@ class _TeachersTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, List<_PersonItem>>>(
-      future: _load(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const _LoadingState();
-        }
-        if (snapshot.hasError) {
-          return _ErrorState(error: snapshot.error.toString());
-        }
-        final data = snapshot.data ?? const {};
-        if (data.isEmpty) {
-          return const _EmptyState(message: 'কোনো শিক্ষক পাওয়া যায়নি');
-        }
-        return _GroupedList(groups: data);
-      },
+    return _SearchableGroupTab(
+      loader: _load,
+      emptyMessage: 'কোনো শিক্ষক পাওয়া যায়নি',
     );
   }
 }
@@ -150,21 +137,9 @@ class _DeanOfficeTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, List<_PersonItem>>>(
-      future: _load(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const _LoadingState();
-        }
-        if (snapshot.hasError) {
-          return _ErrorState(error: snapshot.error.toString());
-        }
-        final data = snapshot.data ?? const {};
-        if (data.isEmpty) {
-          return const _EmptyState(message: 'কোনো তথ্য পাওয়া যায়নি');
-        }
-        return _GroupedList(groups: data);
-      },
+    return _SearchableGroupTab(
+      loader: _load,
+      emptyMessage: 'কোনো তথ্য পাওয়া যায়নি',
     );
   }
 }
@@ -211,21 +186,95 @@ class _StaffTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, List<_PersonItem>>>(
-      future: _load(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const _LoadingState();
-        }
-        if (snapshot.hasError) {
-          return _ErrorState(error: snapshot.error.toString());
-        }
-        final data = snapshot.data ?? const {};
-        if (data.isEmpty) {
-          return const _EmptyState(message: 'কোনো স্টাফ পাওয়া যায়নি');
-        }
-        return _GroupedList(groups: data);
-      },
+    return _SearchableGroupTab(
+      loader: _load,
+      emptyMessage: 'কোনো স্টাফ পাওয়া যায়নি',
+    );
+  }
+}
+
+class _SearchableGroupTab extends StatefulWidget {
+  final Future<Map<String, List<_PersonItem>>> Function() loader;
+  final String emptyMessage;
+
+  const _SearchableGroupTab({required this.loader, required this.emptyMessage});
+
+  @override
+  State<_SearchableGroupTab> createState() => _SearchableGroupTabState();
+}
+
+class _SearchableGroupTabState extends State<_SearchableGroupTab> {
+  late Future<Map<String, List<_PersonItem>>> _future;
+  String _query = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _future = widget.loader();
+  }
+
+  Map<String, List<_PersonItem>> _filter(
+    Map<String, List<_PersonItem>> groups,
+  ) {
+    final q = _query.trim().toLowerCase();
+    if (q.isEmpty) return groups;
+    final out = <String, List<_PersonItem>>{};
+    groups.forEach((dept, people) {
+      final filtered = people.where((p) {
+        final name = p.name.toLowerCase();
+        final desig = p.designation.toLowerCase();
+        final phone = (p.phone ?? '').toLowerCase();
+        final email = (p.email ?? '').toLowerCase();
+        final dep = p.department.toLowerCase();
+        return name.contains(q) ||
+            desig.contains(q) ||
+            phone.contains(q) ||
+            email.contains(q) ||
+            dep.contains(q);
+      }).toList();
+      if (filtered.isNotEmpty) out[dept] = filtered;
+    });
+    return out;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+          child: TextField(
+            decoration: InputDecoration(
+              hintText: 'অনুসন্ধান করুন (নাম, পদবী, ফোন, ইমেইল)',
+              prefixIcon: const Icon(Icons.search),
+              isDense: true,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onChanged: (v) => setState(() => _query = v),
+          ),
+        ),
+        Expanded(
+          child: FutureBuilder<Map<String, List<_PersonItem>>>(
+            future: _future,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const _LoadingState();
+              }
+              if (snapshot.hasError) {
+                return _ErrorState(error: snapshot.error.toString());
+              }
+              final data = snapshot.data ?? const {};
+              final filtered = _filter(data);
+              if (filtered.isEmpty) {
+                return _EmptyState(message: widget.emptyMessage);
+              }
+              return _GroupedList(groups: filtered);
+            },
+          ),
+        ),
+      ],
     );
   }
 }
@@ -273,17 +322,21 @@ class _PersonCard extends StatelessWidget {
         leading: CircleAvatar(
           radius: 24,
           backgroundImage: NetworkImage(item.profilePic ?? ''),
-          child: Text(_initials(item.name)),
+          child: item.profilePic == null
+              ? Text(_initials(item.name), style: const TextStyle(fontSize: 16))
+              : null,
         ),
         title: Text(item.name),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(item.designation),
-            if ((item.phone ?? '').isNotEmpty) Text('ফোন: ${item.phone}'),
+            if ((item.phone ?? '').isNotEmpty)
+              Text('ফোন: ${_preparePhoneForCopy(item.phone!)}'),
             if ((item.email ?? '').isNotEmpty) Text('ইমেইল: ${item.email}'),
           ],
         ),
+        trailing: _buildCopyButton(context),
       ),
     );
   }
@@ -295,6 +348,81 @@ class _PersonCard extends StatelessWidget {
     final first = parts.first.isNotEmpty ? parts.first.substring(0, 1) : '';
     final last = parts.last.isNotEmpty ? parts.last.substring(0, 1) : '';
     return (first + last).toUpperCase();
+  }
+
+  void _copyToClipboard(
+    BuildContext context,
+    String value,
+    String successMsg,
+  ) async {
+    try {
+      await Clipboard.setData(ClipboardData(text: value));
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(successMsg),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('কপি করা যায়নি')));
+      }
+    }
+  }
+
+  Widget? _buildCopyButton(BuildContext context) {
+    final hasPhone = (item.phone ?? '').isNotEmpty;
+    final hasEmail = (item.email ?? '').isNotEmpty;
+    if (!hasPhone && !hasEmail) return null;
+
+    if (hasPhone && hasEmail) {
+      return PopupMenuButton<String>(
+        tooltip: 'কপি করুন',
+        icon: const Icon(Icons.copy),
+        onSelected: (val) {
+          if (val == 'phone') {
+            _copyToClipboard(
+              context,
+              _preparePhoneForCopy(item.phone!),
+              'ফোন নম্বর কপি হয়েছে',
+            );
+          } else if (val == 'email') {
+            _copyToClipboard(context, item.email!, 'ইমেইল কপি হয়েছে');
+          }
+        },
+        itemBuilder: (context) => [
+          const PopupMenuItem(value: 'phone', child: Text('ফোন কপি করুন')),
+          const PopupMenuItem(value: 'email', child: Text('ইমেইল কপি করুন')),
+        ],
+      );
+    }
+
+    final isPhone = hasPhone;
+    final value = isPhone ? item.phone! : item.email!;
+    final success = isPhone ? 'ফোন নম্বর কপি হয়েছে' : 'ইমেইল কপি হয়েছে';
+    final tip = isPhone ? 'ফোন কপি করুন' : 'ইমেইল কপি করুন';
+    return IconButton(
+      tooltip: tip,
+      icon: const Icon(Icons.copy),
+      onPressed: () => _copyToClipboard(
+        context,
+        isPhone ? _preparePhoneForCopy(value) : value,
+        success,
+      ),
+    );
+  }
+
+  String _preparePhoneForCopy(String raw) {
+    final t = raw.trim();
+    if (t.startsWith('+880')) return t; // already in intl format
+    if (t.startsWith('1')) return '+880$t';
+    return t;
   }
 }
 

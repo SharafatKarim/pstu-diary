@@ -1,5 +1,6 @@
+import 'package:diary/shared/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Extras extends StatefulWidget {
   const Extras({super.key});
@@ -63,7 +64,8 @@ class _ExtrasState extends State<Extras> {
                 borderRadius: BorderRadius.circular(20),
                 onTap: () {
                   if (item['title'] == 'Campus Map') {
-                    context.push('/map');
+                    final url = Constants.googleMap;
+                    launchUrl(Uri.parse(url));
                   }
                 },
                 child: Ink(
