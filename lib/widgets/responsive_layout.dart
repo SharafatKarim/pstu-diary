@@ -1,6 +1,4 @@
-import 'package:diary/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class ResponsiveLayout extends StatelessWidget {
   final Widget child;
@@ -16,8 +14,6 @@ class ResponsiveLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final settingsProvider = Provider.of<SettingsProvider>(context);
-
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.maxWidth < 600) {
@@ -50,42 +46,6 @@ class ResponsiveLayout extends StatelessWidget {
               ],
             ),
           );
-        } else if (constraints.maxWidth < 1200) {
-          return Scaffold(
-            body: Row(
-              children: [
-                NavigationRail(
-                  selectedIndex: selectedIndex,
-                  onDestinationSelected: onDestinationSelected,
-                  labelType: settingsProvider.navigationRailLabelType,
-                  destinations: const [
-                    NavigationRailDestination(
-                      icon: Icon(Icons.home),
-                      label: Text('Faculties'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.admin_panel_settings_outlined),
-                      label: Text('Administor'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.home_repair_service_sharp),
-                      label: Text('Services'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.extension_rounded),
-                      label: Text('Extras'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.settings),
-                      label: Text('Settings'),
-                    ),
-                  ],
-                ),
-                const VerticalDivider(thickness: 1, width: 1),
-                Expanded(child: child),
-              ],
-            ),
-          );
         } else {
           return Scaffold(
             body: Row(
@@ -93,10 +53,7 @@ class ResponsiveLayout extends StatelessWidget {
                 NavigationRail(
                   selectedIndex: selectedIndex,
                   onDestinationSelected: onDestinationSelected,
-                  labelType: constraints.maxWidth >= 1200
-                      ? NavigationRailLabelType.none
-                      : NavigationRailLabelType.all,
-                  extended: constraints.maxWidth >= 1200 ? true : false,
+                  labelType: NavigationRailLabelType.all,
                   destinations: const [
                     NavigationRailDestination(
                       icon: Icon(Icons.home),
