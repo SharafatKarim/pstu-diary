@@ -1,6 +1,8 @@
 import 'package:diary/main.dart';
 import 'package:flutter/material.dart';
 
+// TODO: Search bar + copy to clipboard for phone numbers and emails
+
 class Faculty extends StatefulWidget {
   final String facultyName;
 

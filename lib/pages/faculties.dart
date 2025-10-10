@@ -20,7 +20,10 @@ class _FacultiesState extends State<Faculties> {
       {'title': 'বিজনেস এডমিনিস্ট্রেশন', 'icon': Icons.business_center_rounded},
       {'title': 'এনিমাল সায়েন্স এন্ড ভেটেরিনারি মেডিসিন', 'icon': Icons.pets},
       {'title': 'ফিশারিজ', 'icon': Icons.water},
-      {'title': 'এনভায়রনমেন্টাল সায়েন্স এন্ড ডিজাস্টার ম্যানজমেন্ট', 'icon': Icons.eco_rounded},
+      {
+        'title': 'এনভায়রনমেন্টাল সায়েন্স এন্ড ডিজাস্টার ম্যানজমেন্ট',
+        'icon': Icons.eco_rounded,
+      },
       {'title': 'নিউট্রেশন এন্ড ফুড সায়েন্স', 'icon': Icons.restaurant_rounded},
       {'title': 'ল এন্ড ল্যান্ড এডমিনিস্ট্রেশন', 'icon': Icons.gavel_rounded},
       {'title': 'পোস্টগ্র্যাজুয়েট স্টাডিজ', 'icon': Icons.school_rounded},
@@ -51,10 +54,10 @@ class _FacultiesState extends State<Faculties> {
           itemCount: faculties.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: MediaQuery.of(context).size.width >= 900
-            ? 4
-            : MediaQuery.of(context).size.width >= 600
-            ? 3
-            : 2,
+                ? 4
+                : MediaQuery.of(context).size.width >= 600
+                ? 3
+                : 2,
             mainAxisSpacing: 16,
             crossAxisSpacing: 16,
             childAspectRatio: 1.05,
@@ -70,7 +73,9 @@ class _FacultiesState extends State<Faculties> {
               child: InkWell(
                 borderRadius: BorderRadius.circular(20),
                 onTap: () {
-                  context.push('/faculty?name=${Uri.encodeComponent(item['title'] as String)}');
+                  context.push(
+                    '/faculty?name=${Uri.encodeComponent(item['title'] as String)}',
+                  );
                 },
                 child: Ink(
                   decoration: BoxDecoration(
@@ -82,7 +87,7 @@ class _FacultiesState extends State<Faculties> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: end.withOpacity(0.28),
+                        color: end.withValues(alpha: 0.28),
                         blurRadius: 18,
                         spreadRadius: 1,
                         offset: const Offset(0, 10),
@@ -97,7 +102,7 @@ class _FacultiesState extends State<Faculties> {
                         child: Icon(
                           item['icon'] as IconData,
                           size: 140,
-                          color: Colors.white.withOpacity(0.08),
+                          color: Colors.white.withValues(alpha: 0.08),
                         ),
                       ),
                       Padding(
@@ -107,7 +112,7 @@ class _FacultiesState extends State<Faculties> {
                           children: [
                             Container(
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.18),
+                                color: Colors.white.withValues(alpha: 0.18),
                                 borderRadius: BorderRadius.circular(14),
                               ),
                               padding: const EdgeInsets.all(10),
