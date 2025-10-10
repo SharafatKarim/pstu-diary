@@ -1021,6 +1021,7 @@ class _AdminTableViewState extends State<_AdminTableView> {
     });
     try {
       // Fetch up to 200 rows to keep UI snappy
+      // TODO: pagination
       final data = await supabase.from(widget.table.name).select().limit(200);
       final dataFields = _columns
           .where((c) => c.field != _checkField)
