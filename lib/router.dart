@@ -3,7 +3,6 @@ import 'package:diary/admin/no_access.dart';
 import 'package:diary/admin/sign_up.dart';
 import 'package:diary/client/admin_page.dart';
 import 'package:diary/client/faculty.dart';
-import 'package:diary/client/map.dart';
 import 'package:diary/client/service_page.dart';
 import 'package:diary/pages/my_home_page.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +32,6 @@ final router = GoRouter(
         return ServicePage();
       },
     ),
-    GoRoute(path: '/map', builder: (context, state) => const CampusMap()),
     GoRoute(path: '/signup', builder: (context, state) => const SignUpPage()),
     GoRoute(path: '/admin', builder: (context, state) => const AdminHome()),
     GoRoute(path: '/no-access', builder: (context, state) => const NoAccess()),

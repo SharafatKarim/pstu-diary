@@ -35,7 +35,7 @@ class _ExtrasState extends State<Extras> {
       backgroundColor: cs.surface,
       appBar: AppBar(
         elevation: 0,
-        title: const Text('Faculties'),
+        title: const Text('Extras'),
         centerTitle: true,
       ),
       body: SafeArea(
