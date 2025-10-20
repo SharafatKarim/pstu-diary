@@ -241,17 +241,41 @@ class _SettingsState extends State<Settings> {
       ),
       builder: (ctx) {
         return SafeArea(
-          child: RadioGroup<ThemeMode>(
-            groupValue: themeProvider.themeMode,
-            onChanged: (v) => Navigator.pop(ctx, v),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              children: ThemeMode.values.map((mode) {
-                return ListTile(
-                  title: Text(_themeModeLabel(mode)),
-                  leading: Radio<ThemeMode>(value: mode),
-                );
-              }).toList(),
+              children: [
+                const Text(
+                  'Choose theme',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 12),
+                SegmentedButton<ThemeMode>(
+                  segments: const [
+                    ButtonSegment<ThemeMode>(
+                      value: ThemeMode.system,
+                      label: Text('System'),
+                      icon: Icon(Icons.settings_suggest_outlined),
+                    ),
+                    ButtonSegment<ThemeMode>(
+                      value: ThemeMode.light,
+                      label: Text('Light'),
+                      icon: Icon(Icons.light_mode_outlined),
+                    ),
+                    ButtonSegment<ThemeMode>(
+                      value: ThemeMode.dark,
+                      label: Text('Dark'),
+                      icon: Icon(Icons.dark_mode_outlined),
+                    ),
+                  ],
+                  selected: {themeProvider.themeMode},
+                  onSelectionChanged: (selection) =>
+                      Navigator.pop(ctx, selection.first),
+                  multiSelectionEnabled: false,
+                  showSelectedIcon: false,
+                ),
+              ],
             ),
           ),
         );
