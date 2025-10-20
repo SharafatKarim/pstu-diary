@@ -20,8 +20,17 @@ final router = GoRouter(
         return Faculty(facultyName: facultyName);
       },
     ),
-    GoRoute(path: '/administration', builder: (context, state) => AdminPage()),
-    GoRoute(path: '/services', builder: (context, state) => ServicePage()),
+    GoRoute(
+      path: '/administration',
+      builder: (context, state) {
+        final name = state.uri.queryParameters['name'] ?? '';
+        return AdminPage(name: name);
+      },
+    ),
+    GoRoute(path: '/services', builder: (context, state) {
+      final name = state.uri.queryParameters['name'] ?? '';
+      return ServicePage(name: name);
+    }),
     GoRoute(
       path: '/person-detail',
       builder: (context, state) {
