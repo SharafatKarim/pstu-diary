@@ -129,14 +129,16 @@ class GroupedList<T> extends StatelessWidget {
 /// A card widget for displaying person information
 class PersonCard extends StatelessWidget {
   final PersonItem item;
+  final VoidCallback? onTap;
 
-  const PersonCard({super.key, required this.item});
+  const PersonCard({super.key, required this.item, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: ListTile(
+        onTap: onTap,
         leading: CircleAvatar(
           radius: 24,
           backgroundImage: NetworkImage(item.profilePic ?? ''),

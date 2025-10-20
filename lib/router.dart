@@ -3,7 +3,9 @@ import 'package:diary/admin/no_access.dart';
 import 'package:diary/admin/sign_up.dart';
 import 'package:diary/client/admin_page.dart';
 import 'package:diary/client/faculty.dart';
+import 'package:diary/client/person_detail.dart';
 import 'package:diary/client/service_page.dart';
+import 'package:diary/client/shared.dart';
 import 'package:diary/pages/my_home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -18,18 +20,19 @@ final router = GoRouter(
         return Faculty(facultyName: facultyName);
       },
     ),
+    GoRoute(path: '/administration', builder: (context, state) => AdminPage()),
+    GoRoute(path: '/services', builder: (context, state) => ServicePage()),
     GoRoute(
-      path: '/administration',
+      path: '/person-detail',
       builder: (context, state) {
-        final adminFaculty = state.uri.queryParameters['name'] ?? '';
-        return AdminPage();
-      },
-    ),
-    GoRoute(
-      path: '/services',
-      builder: (context, state) {
-        final serviceFaculty = state.uri.queryParameters['name'] ?? '';
-        return ServicePage();
+        final person = state.extra as PersonItem?;
+        if (person == null) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('ত্রুটি')),
+            body: const Center(child: Text('ব্যক্তির তথ্য পাওয়া যায়নি')),
+          );
+        }
+        return PersonDetail(person: person);
       },
     ),
     GoRoute(path: '/signup', builder: (context, state) => const SignUpPage()),

@@ -1,5 +1,6 @@
 import 'package:diary/main.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'shared.dart';
 
 class Faculty extends StatefulWidget {
@@ -91,7 +92,10 @@ class _TeachersTab extends StatelessWidget {
     return SearchableGroupTab<PersonItem>(
       loader: _load,
       emptyMessage: 'কোনো শিক্ষক পাওয়া যায়নি',
-      itemBuilder: (item) => PersonCard(item: item),
+      itemBuilder: (item) => PersonCard(
+        item: item,
+        onTap: () => context.push('/person-detail', extra: item),
+      ),
       searchFields: (item) => [
         item.name,
         item.designation,
@@ -148,7 +152,10 @@ class _DeanOfficeTab extends StatelessWidget {
     return SearchableGroupTab<PersonItem>(
       loader: _load,
       emptyMessage: 'কোনো তথ্য পাওয়া যায়নি',
-      itemBuilder: (item) => PersonCard(item: item),
+      itemBuilder: (item) => PersonCard(
+        item: item,
+        onTap: () => context.push('/person-detail', extra: item),
+      ),
       searchFields: (item) => [
         item.name,
         item.designation,
@@ -205,7 +212,10 @@ class _StaffTab extends StatelessWidget {
     return SearchableGroupTab<PersonItem>(
       loader: _load,
       emptyMessage: 'কোনো স্টাফ পাওয়া যায়নি',
-      itemBuilder: (item) => PersonCard(item: item),
+      itemBuilder: (item) => PersonCard(
+        item: item,
+        onTap: () => context.push('/person-detail', extra: item),
+      ),
       searchFields: (item) => [
         item.name,
         item.designation,
