@@ -14,10 +14,6 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-  // local-only switches for demo features not provided by app-wide providers
-  bool _notifications = true;
-  bool _newsletter = false;
-
   final _availableColors = [
     Colors.blue,
     Colors.green,
@@ -40,9 +36,6 @@ class _SettingsState extends State<Settings> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    // TODO: Set some settings via SettingsProvider
-    // TODO: Move campus map to here
-
     final settingsProvider = Provider.of<SettingsProvider>(context);
 
     const contentPadding = EdgeInsets.symmetric(horizontal: 16, vertical: 20);
@@ -107,15 +100,15 @@ class _SettingsState extends State<Settings> {
           SwitchListTile(
             secondary: const Icon(Icons.notifications_active_outlined),
             title: const Text('Push Notifications'),
-            value: _notifications,
-            onChanged: (v) => setState(() => _notifications = v),
+            value: settingsProvider.pushNotificationsEnabled,
+            onChanged: (v) => settingsProvider.setPushNotificationsEnabled(v),
           ),
           const Divider(height: 0),
           SwitchListTile(
             secondary: const Icon(Icons.email_outlined),
             title: const Text('Email Newsletter'),
-            value: _newsletter,
-            onChanged: (v) => setState(() => _newsletter = v),
+            value: settingsProvider.emailNewsletterEnabled,
+            onChanged: (v) => settingsProvider.setEmailNewsletterEnabled(v),
           ),
         ]),
       ],
