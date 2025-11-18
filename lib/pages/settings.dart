@@ -5,6 +5,7 @@ import 'package:diary/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
@@ -41,7 +42,6 @@ class _SettingsState extends State<Settings> {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     // TODO: Set some settings via SettingsProvider
-    // TODO: Move campus map to here
 
     final settingsProvider = Provider.of<SettingsProvider>(context);
 
@@ -143,6 +143,16 @@ class _SettingsState extends State<Settings> {
       children: [
         _sectionHeader('More'),
         _card([
+          ListTile(
+            leading: const Icon(Icons.map_outlined),
+            title: const Text('Campus Map'),
+            trailing: const Icon(Icons.open_in_new),
+            onTap: () {
+              final url = Constants.googleMap;
+              launchUrl(Uri.parse(url));
+            },
+          ),
+          const Divider(height: 0),
           ListTile(
             leading: const Icon(Icons.help_outline),
             title: const Text('Help Center'),

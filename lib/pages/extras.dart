@@ -1,6 +1,4 @@
-import 'package:diary/shared/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class Extras extends StatefulWidget {
   const Extras({super.key});
@@ -15,9 +13,8 @@ class _ExtrasState extends State<Extras> {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    final pages = [
-      {'title': 'Campus Map', 'icon': Icons.map_outlined},
-    ];
+    // Campus Map has been moved to Settings page
+    final pages = <Map<String, dynamic>>[];
 
     final palettes = [
       [cs.primary, cs.primaryContainer],
@@ -39,121 +36,144 @@ class _ExtrasState extends State<Extras> {
         centerTitle: true,
       ),
       body: SafeArea(
-        child: GridView.builder(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-          itemCount: pages.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: MediaQuery.of(context).size.width >= 900
-                ? 4
-                : MediaQuery.of(context).size.width >= 600
-                ? 3
-                : 2,
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16,
-            childAspectRatio: 1.05,
-          ),
-          itemBuilder: (context, i) {
-            final item = pages[i];
-            final colors = palettes[i % palettes.length];
-            final start = colors.first;
-            final end = colors.last;
-
-            return Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(20),
-                onTap: () {
-                  if (item['title'] == 'Campus Map') {
-                    final url = Constants.googleMap;
-                    launchUrl(Uri.parse(url));
-                  }
-                },
-                child: Ink(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    gradient: LinearGradient(
-                      colors: [start, end],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+        child: pages.isEmpty
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.extension_rounded,
+                      size: 80,
+                      color: cs.primary.withValues(alpha: 0.3),
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: end.withValues(alpha: 0.28),
-                        blurRadius: 18,
-                        spreadRadius: 1,
-                        offset: const Offset(0, 10),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No extras available',
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        color: cs.onSurface.withValues(alpha: 0.6),
                       ),
-                    ],
-                  ),
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        right: -20,
-                        bottom: -20,
-                        child: Icon(
-                          item['icon'] as IconData,
-                          size: 140,
-                          color: Colors.white.withValues(alpha: 0.08),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Check the Settings page for more features',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: cs.onSurface.withValues(alpha: 0.4),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : GridView.builder(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                itemCount: pages.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: MediaQuery.of(context).size.width >= 900
+                      ? 4
+                      : MediaQuery.of(context).size.width >= 600
+                          ? 3
+                          : 2,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16,
+                  childAspectRatio: 1.05,
+                ),
+                itemBuilder: (context, i) {
+                  final item = pages[i];
+                  final colors = palettes[i % palettes.length];
+                  final start = colors.first;
+                  final end = colors.last;
+
+                  return Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: () {},
+                      child: Ink(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          gradient: LinearGradient(
+                            colors: [start, end],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: end.withValues(alpha: 0.28),
+                              blurRadius: 18,
+                              spreadRadius: 1,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Stack(
                           children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.18),
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              padding: const EdgeInsets.all(10),
+                            Positioned(
+                              right: -20,
+                              bottom: -20,
                               child: Icon(
                                 item['icon'] as IconData,
-                                color: Colors.white,
-                                size: 26,
+                                size: 140,
+                                color: Colors.white.withValues(alpha: 0.08),
                               ),
                             ),
-                            const Spacer(),
-                            Text(
-                              item['title'] as String,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w800,
-                                height: 1.2,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: const [
-                                Text(
-                                  'আরও দেখুন',
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
+                            Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color:
+                                          Colors.white.withValues(alpha: 0.18),
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                    padding: const EdgeInsets.all(10),
+                                    child: Icon(
+                                      item['icon'] as IconData,
+                                      color: Colors.white,
+                                      size: 26,
+                                    ),
                                   ),
-                                ),
-                                SizedBox(width: 6),
-                                Icon(
-                                  Icons.arrow_forward_rounded,
-                                  size: 16,
-                                  color: Colors.white70,
-                                ),
-                              ],
+                                  const Spacer(),
+                                  Text(
+                                    item['title'] as String,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: theme.textTheme.titleMedium?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w800,
+                                      height: 1.2,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: const [
+                                      Text(
+                                        'আরও দেখুন',
+                                        style: TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      SizedBox(width: 6),
+                                      Icon(
+                                        Icons.arrow_forward_rounded,
+                                        size: 16,
+                                        color: Colors.white70,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               ),
-            );
-          },
-        ),
       ),
     );
   }
