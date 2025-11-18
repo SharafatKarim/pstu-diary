@@ -41,6 +41,8 @@ class _SettingsState extends State<Settings> {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     // TODO: Set some settings via SettingsProvider
+    // TODO: Move campus map to here
+
     final settingsProvider = Provider.of<SettingsProvider>(context);
 
     const contentPadding = EdgeInsets.symmetric(horizontal: 16, vertical: 20);
