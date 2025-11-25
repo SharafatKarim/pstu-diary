@@ -115,6 +115,7 @@ class GroupedList<T> extends StatelessWidget {
           child: Card(
             child: ExpansionTile(
               title: Text(section),
+              initiallyExpanded: true,
               children: [
                 Column(children: [for (final item in items) itemBuilder(item)]),
               ],

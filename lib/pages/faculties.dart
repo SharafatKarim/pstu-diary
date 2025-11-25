@@ -21,7 +21,7 @@ class _FacultiesState extends State<Faculties> {
       {'title': 'এনিমাল সায়েন্স এন্ড ভেটেরিনারি মেডিসিন', 'icon': Icons.pets},
       {'title': 'ফিশারিজ', 'icon': Icons.water},
       {
-        'title': 'এনভায়রনমেন্টাল সায়েন্স এন্ড ডিজাস্টার ম্যানজমেন্ট',
+        'title': 'এনভায়রনমেন্টাল সায়েন্স এন্ড ডিজাস্টার ম্যানেজমেন্ট',
         'icon': Icons.eco_rounded,
       },
       {'title': 'নিউট্রেশন এন্ড ফুড সায়েন্স', 'icon': Icons.restaurant_rounded},

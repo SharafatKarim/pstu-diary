@@ -1,4 +1,7 @@
 // import 'package:diary/l10n/app_localizations.dart';
+import 'dart:developer' as developer;
+
+import 'package:diary/main.dart';
 import 'package:diary/pages/administor.dart';
 import 'package:diary/pages/extras.dart';
 import 'package:diary/pages/faculties.dart';
@@ -6,6 +9,9 @@ import 'package:diary/pages/services.dart';
 import 'package:diary/pages/settings.dart';
 import 'package:diary/widgets/responsive_layout.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+// TODO: Redirect to admin if logged in as admin
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -26,6 +32,32 @@ class _MyHomePageState extends State<MyHomePage> {
     const Extras(),
     const Settings(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    if (supabase.auth.currentUser !=null) {
+      _checkRole();
+    }
+  }
+
+  Future<void> _checkRole() async {
+    try {
+      final role = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', supabase.auth.currentSession!.user.id)
+          .single();
+
+      developer.log('role: $role');
+      if (role['role'] == 'admin') {
+        if (!mounted) return;
+        context.go('/admin');
+      }
+    } catch (e) {
+      developer.log('Error fetching role: $e');
+    }
+  }
 
   // TODO :: Localization
   // @override

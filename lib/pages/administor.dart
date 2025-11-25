@@ -19,7 +19,14 @@ class _AdministorState extends State<Administor> {
         'title': 'ভাইস-চ্যান্সেলর কার্যালয়',
         'icon': Icons.account_balance_rounded,
       },
-      {'title': 'মাননীয় ভাইস চ্যান্সেলর মহোদয়', 'icon': Icons.person_rounded},
+      {
+        'title': 'প্রো-ভাইস চ্যান্সেলর কার্যালয়',
+        'icon': Icons.person_rounded,
+      },
+      {
+        'title': 'রেজিস্ট্রার অফিস',
+        'icon': Icons.apartment_rounded,
+      },
       {
         'title': 'অর্থ ও হিসাব বিভাগ',
         'icon': Icons.account_balance_wallet_rounded,
@@ -28,16 +35,38 @@ class _AdministorState extends State<Administor> {
         'title': 'পরিকল্পনা,উন্নয়ন ও ওয়ার্কস বিভাগ',
         'icon': Icons.engineering_rounded,
       },
-      {'title': 'রেজিস্ট্রার', 'icon': Icons.badge_rounded},
-      {'title': 'আরটিসি', 'icon': Icons.hub_rounded},
-      {'title': 'আইসিটি সেল', 'icon': Icons.memory_rounded},
-      {'title': 'কেন্দ্রীয় গ্রন্থাগার', 'icon': Icons.local_library_rounded},
-      {'title': 'প্রকৌশল বিভাগ', 'icon': Icons.handyman_rounded},
-      {'title': 'রেজিস্ট্রার অফিস', 'icon': Icons.apartment_rounded},
-      {'title': 'পরীক্ষা নিয়ন্ত্রক শাখা', 'icon': Icons.rule_folder_rounded},
-      {'title': 'আইকিউএসি', 'icon': Icons.verified_rounded},
-      {'title': 'কেন্দ্রীয় গবেষনাগার', 'icon': Icons.science_rounded},
-      {'title': 'কৃষি খামার', 'icon': Icons.agriculture_rounded},
+      {
+        'title': 'পরীক্ষা নিয়ন্ত্রক শাখা',
+        'icon': Icons.rule_folder_rounded,
+      },
+      {
+        'title': 'কেন্দ্রীয় গ্রন্থাগার',
+        'icon': Icons.local_library_rounded,
+      },
+      {
+        'title': 'আইসিটি সেল',
+        'icon': Icons.memory_rounded,
+      },
+      {
+        'title': 'প্রকৌশল বিভাগ',
+        'icon': Icons.handyman_rounded,
+      },
+      {
+        'title': 'আইটি সেন্টার',
+        'icon': Icons.computer_rounded,
+      },
+      {
+        'title': 'ট্রেজারার',
+        'icon': Icons.payments_rounded,
+      },
+      {
+        'title': 'কেন্দ্রীয় গবেষনাগার',
+        'icon': Icons.science_rounded,
+      },
+      {
+        'title': 'কৃষি খামার',
+        'icon': Icons.agriculture_rounded,
+      },
     ];
 
     final palettes = [

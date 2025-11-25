@@ -3,31 +3,35 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsProvider with ChangeNotifier {
   final SharedPreferences sharedPreferences;
-  static const String _navigationRailLabelTypeKey = 'navigationRailLabelType';
 
-  NavigationRailLabelType _navigationRailLabelType = NavigationRailLabelType.all;
+  static const String _pushKey = 'pushNotificationsEnabled';
+  static const String _emailKey = 'emailNewsletterEnabled';
+
+  bool _pushNotificationsEnabled = false;
+  bool _emailNewsletterEnabled = false;
 
   SettingsProvider(this.sharedPreferences) {
-    _loadNavigationRailLabelType();
+    _load();
   }
 
-  NavigationRailLabelType get navigationRailLabelType => _navigationRailLabelType;
+  bool get pushNotificationsEnabled => _pushNotificationsEnabled;
+  bool get emailNewsletterEnabled => _emailNewsletterEnabled;
 
-  void _loadNavigationRailLabelType() {
-    final labelTypeString = sharedPreferences.getString(_navigationRailLabelTypeKey);
-    if (labelTypeString == 'none') {
-      _navigationRailLabelType = NavigationRailLabelType.none;
-    } else if (labelTypeString == 'selected') {
-      _navigationRailLabelType = NavigationRailLabelType.selected;
-    } else {
-      _navigationRailLabelType = NavigationRailLabelType.all;
-    }
+  void _load() {
+    _pushNotificationsEnabled = sharedPreferences.getBool(_pushKey) ?? false;
+    _emailNewsletterEnabled = sharedPreferences.getBool(_emailKey) ?? false;
     notifyListeners();
   }
 
-  Future<void> setNavigationRailLabelType(NavigationRailLabelType labelType) async {
-    _navigationRailLabelType = labelType;
-    await sharedPreferences.setString(_navigationRailLabelTypeKey, labelType.toString().split('.').last);
+  Future<void> setPushNotificationsEnabled(bool value) async {
+    _pushNotificationsEnabled = value;
+    await sharedPreferences.setBool(_pushKey, value);
+    notifyListeners();
+  }
+
+  Future<void> setEmailNewsletterEnabled(bool value) async {
+    _emailNewsletterEnabled = value;
+    await sharedPreferences.setBool(_emailKey, value);
     notifyListeners();
   }
 }

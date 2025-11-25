@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:diary/admin/admin_home.dart';
 import 'package:diary/admin/no_access.dart';
 import 'package:diary/admin/sign_up.dart';
@@ -6,6 +8,7 @@ import 'package:diary/client/faculty.dart';
 import 'package:diary/client/person_detail.dart';
 import 'package:diary/client/service_page.dart';
 import 'package:diary/client/shared.dart';
+import 'package:diary/main.dart';
 import 'package:diary/pages/my_home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -49,6 +52,30 @@ final router = GoRouter(
     GoRoute(path: '/no-access', builder: (context, state) => const NoAccess()),
   ],
   initialLocation: '/',
+  redirect: (context, state) async {
+    // Only redirect on initial load to home page
+    if (state.matchedLocation == '/') {
+      final session = supabase.auth.currentSession;
+      if (session != null) {
+        try {
+          final role = await supabase
+              .from('profiles')
+              .select('role')
+              .eq('id', session.user.id)
+              .single();
+          
+          developer.log('User role: ${role['role']}');
+          
+          if (role['role'] == 'admin') {
+            return '/admin';
+          }
+        } catch (e) {
+          developer.log('Error checking user role: $e');
+        }
+      }
+    }
+    return null; // No redirect
+  },
   errorBuilder: (context, state) =>
       Scaffold(body: Center(child: Text(state.error.toString()))),
 );
