@@ -16,15 +16,15 @@ class _ServicesState extends State<Services> {
 
     final services = [
       {'title': 'সাধারন সেবা', 'icon': Icons.miscellaneous_services_rounded},
-      {'title': 'ইনোভেশন ডেসিমিনেশন সেন্টার', 'icon': Icons.lightbulb_rounded},
-      {'title': 'অন্যান্য', 'icon': Icons.more_horiz_rounded},
-      {'title': 'লিগ্যাল এডভাইজরি শাখা', 'icon': Icons.gavel_rounded},
       {'title': 'জরুরী সেবা', 'icon': Icons.sos_rounded},
-      {'title': 'পরিবহন', 'icon': Icons.directions_bus_filled_rounded},
-      {'title': 'ক্লাব সমূহ', 'icon': Icons.groups_rounded},
-      {'title': 'মসজিদ সমূহ', 'icon': Icons.place_rounded},
-      {'title': 'অধিকতর উন্নয়ন প্রকল্প', 'icon': Icons.engineering_rounded},
       {'title': 'হল সমূহ', 'icon': Icons.apartment_rounded},
+      {'title': 'পরিবহন', 'icon': Icons.directions_bus_filled_rounded},
+      {'title': 'মসজিদ সমূহ', 'icon': Icons.place_rounded},
+      {'title': 'ইনোভেশন ডেসিমিনেশন সেন্টার', 'icon': Icons.lightbulb_rounded},
+      {'title': 'লিগ্যাল এডভাইজরি শাখা', 'icon': Icons.gavel_rounded},
+      {'title': 'অধিকতর উন্নয়ন প্রকল্প', 'icon': Icons.engineering_rounded},
+      {'title': 'ক্লাব সমূহ', 'icon': Icons.groups_rounded},
+      {'title': 'অন্যান্য', 'icon': Icons.more_horiz_rounded},
     ];
 
     final palettes = [
