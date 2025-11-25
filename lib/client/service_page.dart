@@ -14,32 +14,19 @@ class ServicePage extends StatefulWidget {
 
 class _ServicePageState extends State<ServicePage> {
   Future<Map<String, List<PersonItem>>> _load() async {
-    // Load service departments for the selected category (faculty_name)
-    final depRows = await supabase
-        .from('administration_servicedepartment')
-        .select('id, department')
-        .eq('faculty_name', widget.name);
-
-    // If no departments, return empty
-    if (depRows.isEmpty) return {};
-
-    final depMap = <int, String>{
-      for (final r in depRows)
-        (r['id'] as num).toInt(): r['department'] as String,
-    };
-    final depIds = depMap.keys.toList();
-
-    // Fetch services under these departments, ordered by priority then name
+    // Fetch services for the selected category (faculty_name) with department_name
     final rows = await supabase
         .from('administration_services')
-        .select('id, name, phone, email, designation, priority, department_id')
-        .inFilter('department_id', depIds)
+        .select('id, name, phone, email, designation, priority, faculty_name, department_name')
+        .eq('faculty_name', widget.name)
         .order('priority', ascending: true)
         .order('name', ascending: true);
 
+    // If no services, return empty
+    if (rows.isEmpty) return {};
+
     final items = rows.map<PersonItem>((r) {
-      final depId = (r['department_id'] as num).toInt();
-      final department = depMap[depId] ?? 'অনির্দিষ্ট বিভাগ';
+      final department = (r['department_name'] as String?) ?? 'অনির্দিষ্ট বিভাগ';
       return PersonItem(
         name: (r['name'] as String?)?.trim().isNotEmpty == true
             ? r['name'] as String

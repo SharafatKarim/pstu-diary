@@ -14,28 +14,17 @@ class AdminPage extends StatefulWidget {
 
 class _AdminPageState extends State<AdminPage> {
   Future<Map<String, List<PersonItem>>> _load() async {
-    // Load administration departments for the given faculty
-    final depRows = await supabase
-        .from('administration_administrationdepartment')
-        .select('id, department')
-        .eq('faculty', widget.name);
-    final depMap = <int, String>{
-      for (final r in depRows)
-        (r['id'] as num).toInt(): r['department'] as String,
-    };
-
     final rows = await supabase
         .from('administration_administration')
         .select(
-          'id, name, phone_number, email, designation, faculty_name, priority, department_id, profile_pic',
+          'id, name, phone_number, email, designation, faculty_name, priority, department_name, profile_pic',
         )
         .eq('faculty_name', widget.name)
         .order('priority', ascending: true)
         .order('name', ascending: true);
 
     final items = rows.map<PersonItem>((r) {
-      final depId = (r['department_id'] as num).toInt();
-      final department = depMap[depId] ?? 'অনির্দিষ্ট বিভাগ';
+      final department = (r['department_name'] as String?) ?? 'অনির্দিষ্ট বিভাগ';
       return PersonItem(
         name: r['name'] as String,
         designation: r['designation'] as String,

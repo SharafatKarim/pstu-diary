@@ -28,52 +28,42 @@ for each row execute function public.handle_new_user();
 -- =========================
 -- ACADEMY TABLES
 -- =========================
+
+-- 1. DEAN FACULTY
 CREATE TABLE academy_deanfaculty (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     faculty VARCHAR(200) NOT NULL,
-    department VARCHAR(200) NOT NULL
+    department VARCHAR(200) NOT NULL,
+    PRIMARY KEY (faculty, department)
 );
 
+-- 2. DEAN OFFICE
 CREATE TABLE academy_deanoffice (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(200) NOT NULL,
     phone_number VARCHAR(11) NOT NULL,
     email VARCHAR(150) NOT NULL,
     designation VARCHAR(200) NOT NULL,
-    faculty VARCHAR(200) NOT NULL,
     priority INTEGER NOT NULL,
-    department_id BIGINT NOT NULL,
-    CONSTRAINT fk_deanoffice_department
-        FOREIGN KEY (department_id) REFERENCES academy_deanfaculty (id)
+
+    -- Foreign Key Columns
+    faculty VARCHAR(200) NOT NULL,
+    department VARCHAR(200) NOT NULL, -- Replaces department_id
+
+    CONSTRAINT fk_deanoffice_faculty_dept
+        FOREIGN KEY (faculty, department)
+        REFERENCES academy_deanfaculty (faculty, department)
         ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
+-- 3. DEPARTMENT (Teacher)
 CREATE TABLE academy_department (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     faculty VARCHAR(200) NOT NULL,
-    department VARCHAR(200) NOT NULL
+    department VARCHAR(200) NOT NULL,
+    PRIMARY KEY (faculty, department)
 );
 
-CREATE TABLE academy_staffdepartment (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    faculty VARCHAR(200) NOT NULL,
-    department VARCHAR(200) NOT NULL
-);
-
-CREATE TABLE academy_staff (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name VARCHAR(200) NOT NULL,
-    phone_number VARCHAR(11) NOT NULL,
-    email VARCHAR(150),
-    designation VARCHAR(200) NOT NULL,
-    faculty VARCHAR(200) NOT NULL,
-    priority INTEGER NOT NULL,
-    department_id BIGINT NOT NULL,
-    CONSTRAINT fk_staff_department
-        FOREIGN KEY (department_id) REFERENCES academy_staffdepartment (id)
-        ON DELETE CASCADE
-);
-
+-- 4. TEACHER
 CREATE TABLE academy_teacher (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(200) NOT NULL,
@@ -81,42 +71,85 @@ CREATE TABLE academy_teacher (
     profile_pic VARCHAR(100),
     email VARCHAR(150) NOT NULL,
     designation VARCHAR(200) NOT NULL,
-    faculty_name VARCHAR(200) NOT NULL,
     priority INTEGER NOT NULL,
-    department_id BIGINT NOT NULL
-    -- Add FK if needed
+
+    -- Foreign Key Columns
+    faculty_name VARCHAR(200) NOT NULL, -- Maps to 'faculty' in parent
+    department_name VARCHAR(200) NOT NULL, -- Maps to 'department' in parent (Replaces department_id)
+
+    CONSTRAINT fk_teacher_department
+        FOREIGN KEY (faculty_name, department_name)
+        REFERENCES academy_department (faculty, department)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
--- =========================
--- ADMINISTRATION TABLES
--- =========================
-CREATE TABLE administration_administrationdepartment (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+-- 5. STAFF DEPARTMENT
+CREATE TABLE academy_staffdepartment (
     faculty VARCHAR(200) NOT NULL,
-    department VARCHAR(200) NOT NULL
+    department VARCHAR(200) NOT NULL,
+    PRIMARY KEY (faculty, department)
 );
 
+-- 6. STAFF
+-- reference to academy_staffdepartment
+CREATE TABLE academy_staff (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name VARCHAR(200) NOT NULL,
+    phone_number VARCHAR(11) NOT NULL,
+    email VARCHAR(150),
+    designation VARCHAR(200) NOT NULL,
+    priority INTEGER NOT NULL,
+
+    -- Foreign Key Columns
+    faculty VARCHAR(200) NOT NULL,
+    department VARCHAR(200) NOT NULL, -- Replaces department_id
+
+    CONSTRAINT fk_staff_department
+        FOREIGN KEY (faculty, department)
+        REFERENCES academy_staffdepartment (faculty, department)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+-- 7. ADMINISTRATION DEPARTMENT
+CREATE TABLE administration_administrationdepartment (
+    faculty VARCHAR(200) NOT NULL,
+    department VARCHAR(200) NOT NULL,
+    PRIMARY KEY (faculty, department)
+);
+
+-- 8. ADMINISTRATION
+-- reference to administration_administrationdepartment
 CREATE TABLE administration_administration (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(200) NOT NULL,
     phone_number VARCHAR(11) NOT NULL,
     email VARCHAR(150) NOT NULL,
     designation VARCHAR(200) NOT NULL,
-    faculty_name VARCHAR(200) NOT NULL,
+    faculty_name VARCHAR(200) NOT NULL, -- Already existed
     priority INTEGER NOT NULL,
-    department_id BIGINT NOT NULL,
     profile_pic VARCHAR(100),
-    CONSTRAINT fk_admin_department
-        FOREIGN KEY (department_id) REFERENCES administration_administrationdepartment (id)
+
+    -- Foreign Key Columns
+    department_name VARCHAR(200) NOT NULL, -- Replaces department_id
+
+    CONSTRAINT fk_admin_department_composite
+        FOREIGN KEY (faculty_name, department_name)
+        REFERENCES administration_administrationdepartment (faculty, department)
         ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
+-- 9. SERVICE DEPARTMENT
 CREATE TABLE administration_servicedepartment (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     faculty_name VARCHAR(200) NOT NULL,
-    department VARCHAR(200) NOT NULL
+    department VARCHAR(200) NOT NULL,
+    PRIMARY KEY (faculty_name, department)
 );
 
+-- 10. SERVICES
+-- reference to  administration_servicedepartment
 CREATE TABLE administration_services (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(200),
@@ -124,15 +157,19 @@ CREATE TABLE administration_services (
     designation VARCHAR(200),
     email VARCHAR(254),
     priority INTEGER NOT NULL,
-    department_id BIGINT NOT NULL,
+
+    -- Foreign Key Columns
+    faculty_name VARCHAR(200) NOT NULL,    -- Added to support composite key
+    department_name VARCHAR(200) NOT NULL, -- Replaces department_id
+
     CONSTRAINT fk_services_department
-        FOREIGN KEY (department_id) REFERENCES administration_servicedepartment (id)
+        FOREIGN KEY (faculty_name, department_name)
+        REFERENCES administration_servicedepartment (faculty_name, department)
         ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
--- =========================
--- COURSE TABLE
--- =========================
+-- 11. Courses
 CREATE TABLE course_course (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     course_title VARCHAR(200) NOT NULL,
@@ -141,6 +178,54 @@ CREATE TABLE course_course (
     faculty VARCHAR(200) NOT NULL,
     semester VARCHAR(200) NOT NULL
 );
+
+
+-- =========================
+-- =========================
+-- VIEWS
+-- =========================
+-- =========================
+
+create view public.global_search_view with (security_invoker = on) as
+ SELECT 'teacher'::text AS type,
+    academy_teacher.id::text AS reference_id,
+    academy_teacher.name AS title,
+    academy_teacher.designation AS subtitle,
+    academy_teacher.email AS details,
+    (((((((academy_teacher.name::text || ' '::text) || academy_teacher.designation::text) || ' '::text) || academy_teacher.faculty_name::text) || ' '::text) || academy_teacher.department_name::text) || ' '::text) || academy_teacher.phone_number::text AS search_text
+   FROM academy_teacher
+UNION ALL
+ SELECT 'staff'::text AS type,
+    academy_staff.id::text AS reference_id,
+    academy_staff.name AS title,
+    academy_staff.designation AS subtitle,
+    academy_staff.email AS details,
+    (((((((academy_staff.name::text || ' '::text) || academy_staff.designation::text) || ' '::text) || academy_staff.faculty::text) || ' '::text) || academy_staff.department::text) || ' '::text) || academy_staff.phone_number::text AS search_text
+   FROM academy_staff
+UNION ALL
+ SELECT 'dean_office'::text AS type,
+    academy_deanoffice.id::text AS reference_id,
+    academy_deanoffice.name AS title,
+    academy_deanoffice.designation AS subtitle,
+    academy_deanoffice.email AS details,
+    (((((((academy_deanoffice.name::text || ' '::text) || academy_deanoffice.designation::text) || ' '::text) || academy_deanoffice.faculty::text) || ' '::text) || academy_deanoffice.department::text) || ' '::text) || academy_deanoffice.phone_number::text AS search_text
+   FROM academy_deanoffice
+UNION ALL
+ SELECT 'admin'::text AS type,
+    administration_administration.id::text AS reference_id,
+    administration_administration.name AS title,
+    administration_administration.designation AS subtitle,
+    administration_administration.email AS details,
+    (((((((administration_administration.name::text || ' '::text) || administration_administration.designation::text) || ' '::text) || administration_administration.faculty_name::text) || ' '::text) || administration_administration.department_name::text) || ' '::text) || administration_administration.phone_number::text AS search_text
+   FROM administration_administration
+UNION ALL
+ SELECT 'course'::text AS type,
+    course_course.id::text AS reference_id,
+    course_course.course_title AS title,
+    course_course.course_code AS subtitle,
+    'Credit: '::text || course_course.credit_hour::text AS details,
+    (((((course_course.course_title::text || ' '::text) || course_course.course_code::text) || ' '::text) || course_course.faculty::text) || ' '::text) || course_course.semester::text AS search_text
+   FROM course_course;
 
 -- =========================
 -- =========================

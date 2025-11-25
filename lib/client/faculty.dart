@@ -51,28 +51,17 @@ class _TeachersTab extends StatelessWidget {
   const _TeachersTab({required this.faculty});
 
   Future<Map<String, List<PersonItem>>> _load() async {
-    // Departments for teachers
-    final depRows = await supabase
-        .from('academy_department')
-        .select('id, department')
-        .eq('faculty', faculty);
-    final depMap = <int, String>{
-      for (final r in depRows)
-        (r['id'] as num).toInt(): r['department'] as String,
-    };
-
     final rows = await supabase
         .from('academy_teacher')
         .select(
-          'id, name, phone_number, profile_pic, email, designation, faculty_name, priority, department_id',
+          'id, name, phone_number, profile_pic, email, designation, faculty_name, priority, department_name',
         )
         .eq('faculty_name', faculty)
         .order('priority', ascending: true)
         .order('name', ascending: true);
 
     final items = rows.map<PersonItem>((r) {
-      final depId = (r['department_id'] as num).toInt();
-      final department = depMap[depId] ?? 'অনির্দিষ্ট বিভাগ';
+      final department = (r['department_name'] as String?) ?? 'অনির্দিষ্ট বিভাগ';
       return PersonItem(
         name: r['name'] as String,
         designation: r['designation'] as String,
@@ -112,28 +101,17 @@ class _DeanOfficeTab extends StatelessWidget {
   const _DeanOfficeTab({required this.faculty});
 
   Future<Map<String, List<PersonItem>>> _load() async {
-    // department map for dean office
-    final depRows = await supabase
-        .from('academy_deanfaculty')
-        .select('id, department')
-        .eq('faculty', faculty);
-    final depMap = <int, String>{
-      for (final r in depRows)
-        (r['id'] as num).toInt(): r['department'] as String,
-    };
-
     final rows = await supabase
         .from('academy_deanoffice')
         .select(
-          'id, name, phone_number, email, designation, faculty, priority, department_id',
+          'id, name, phone_number, email, designation, faculty, priority, department',
         )
         .eq('faculty', faculty)
         .order('priority', ascending: true)
         .order('name', ascending: true);
 
     final items = rows.map<PersonItem>((r) {
-      final depId = (r['department_id'] as num).toInt();
-      final department = depMap[depId] ?? 'অনির্দিষ্ট বিভাগ';
+      final department = (r['department'] as String?) ?? 'অনির্দিষ্ট বিভাগ';
       return PersonItem(
         name: r['name'] as String,
         designation: r['designation'] as String,
@@ -167,33 +145,23 @@ class _DeanOfficeTab extends StatelessWidget {
   }
 }
 
+
 class _StaffTab extends StatelessWidget {
   final String faculty;
   const _StaffTab({required this.faculty});
 
   Future<Map<String, List<PersonItem>>> _load() async {
-    // department map for staff
-    final depRows = await supabase
-        .from('academy_staffdepartment')
-        .select('id, department')
-        .eq('faculty', faculty);
-    final depMap = <int, String>{
-      for (final r in depRows)
-        (r['id'] as num).toInt(): r['department'] as String,
-    };
-
     final rows = await supabase
         .from('academy_staff')
         .select(
-          'id, name, phone_number, email, designation, faculty, priority, department_id',
+          'id, name, phone_number, email, designation, faculty, priority, department',
         )
         .eq('faculty', faculty)
         .order('priority', ascending: true)
         .order('name', ascending: true);
 
     final items = rows.map<PersonItem>((r) {
-      final depId = (r['department_id'] as num).toInt();
-      final department = depMap[depId] ?? 'অনير्দिষ্ট বিভাগ';
+      final department = (r['department'] as String?) ?? 'অনির্দিষ্ট বিভাগ';
       return PersonItem(
         name: r['name'] as String,
         designation: r['designation'] as String,
@@ -206,7 +174,6 @@ class _StaffTab extends StatelessWidget {
 
     return groupByDepartment(items);
   }
-
   @override
   Widget build(BuildContext context) {
     return SearchableGroupTab<PersonItem>(
