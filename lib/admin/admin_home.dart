@@ -11,7 +11,7 @@ class TableModel {
   final IconData icon; // icon to display in the NavigationRail
   final List<String> columns; // list of column names (fallback)
   final List<PlutoColumn>? plutoColumns; // optional: rich PlutoGrid columns
-  final String primaryKey; // primary key column used for updates
+  final List<String> primaryKeys; // primary key columns used for updates (supports composite keys)
   final String description; // optional: for tooltips or help text
 
   const TableModel({
@@ -20,9 +20,13 @@ class TableModel {
     required this.icon,
     required this.columns,
     this.plutoColumns,
-    this.primaryKey = 'id',
+    List<String>? primaryKeys,
+    String? primaryKey,
     this.description = '',
-  });
+  }) : primaryKeys = primaryKeys ?? (primaryKey != null ? [primaryKey] : const ['id']);
+
+  /// Check if this table has a composite primary key
+  bool get hasCompositePrimaryKey => primaryKeys.length > 1;
 
   /// Build PlutoColumns if not explicitly provided, from simple column names.
   List<PlutoColumn> buildPlutoColumns() {
@@ -33,14 +37,14 @@ class TableModel {
             title: c,
             field: c,
             type: PlutoColumnType.text(),
-            readOnly: c == primaryKey,
+            readOnly: primaryKeys.contains(c),
             enableRowDrag: false,
             enableDropToResize: true,
-            enableEditingMode: c != primaryKey,
-            frozen: c == primaryKey
+            enableEditingMode: !primaryKeys.contains(c),
+            frozen: primaryKeys.contains(c)
                 ? PlutoColumnFrozen.start
                 : PlutoColumnFrozen.none,
-            width: c == primaryKey ? 140 : 180,
+            width: primaryKeys.contains(c) ? 140 : 180,
           ),
         )
         .toList();
@@ -81,7 +85,7 @@ final List<TableModel> databaseTables = [
     label: 'Dean Faculty',
     icon: Icons.school,
     columns: ['faculty', 'department'],
-    primaryKey: 'faculty',
+    primaryKeys: ['faculty', 'department'],
     description: 'Dean faculties and departments (Composite PK: faculty + department)',
     plutoColumns: [
       PlutoColumn(
@@ -173,7 +177,7 @@ final List<TableModel> databaseTables = [
     label: 'Academy Departments',
     icon: Icons.apartment,
     columns: ['faculty', 'department'],
-    primaryKey: 'faculty',
+    primaryKeys: ['faculty', 'department'],
     description: 'Departments under academic faculties (Composite PK: faculty + department)',
     plutoColumns: [
       PlutoColumn(
@@ -276,7 +280,7 @@ final List<TableModel> databaseTables = [
     label: 'Academy Staff Departments',
     icon: Icons.domain,
     columns: ['faculty', 'department'],
-    primaryKey: 'faculty',
+    primaryKeys: ['faculty', 'department'],
     description: 'Staff departments under academic faculties (Composite PK: faculty + department)',
     plutoColumns: [
       PlutoColumn(
@@ -352,7 +356,7 @@ final List<TableModel> databaseTables = [
     label: 'Admin Departments',
     icon: Icons.domain,
     columns: ['faculty', 'department'],
-    primaryKey: 'faculty',
+    primaryKeys: ['faculty', 'department'],
     description: 'Administration departments (Composite PK: faculty + department)',
     plutoColumns: [
       PlutoColumn(
@@ -493,7 +497,7 @@ final List<TableModel> databaseTables = [
     label: 'Service Departments',
     icon: Icons.design_services,
     columns: ['faculty_name', 'department'],
-    primaryKey: 'faculty_name',
+    primaryKeys: ['faculty_name', 'department'],
     description: 'Service departments (Composite PK: faculty_name + department)',
     plutoColumns: [
       PlutoColumn(
@@ -881,7 +885,54 @@ class _AdminTableViewState extends State<_AdminTableView> {
 
   Future<void> _updateCell(PlutoGridOnChangedEvent e) async {
     if (e.column.field == _checkField) return; // ignore checkbox toggles
-    final pk = widget.table.primaryKey;
+    
+    // For tables with composite primary keys, don't allow inline editing of PK columns
+    // Users should delete and re-add rows if they need to change PK values
+    if (widget.table.hasCompositePrimaryKey) {
+      if (widget.table.primaryKeys.contains(e.column.field)) {
+        // Revert value for PK column edits
+        e.row.cells[e.column.field]!.value = e.oldValue;
+        _stateManager?.notifyListeners();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Cannot edit primary key columns. Delete and re-add the row instead.'),
+            ),
+          );
+        }
+        return;
+      }
+      // For non-PK columns in composite key tables, build the filter
+      var query = supabase.from(widget.table.name).update({e.column.field: e.value});
+      for (final pk in widget.table.primaryKeys) {
+        final pkVal = e.row.cells[pk]?.value;
+        if (pkVal == null) return;
+        query = query.eq(pk, pkVal);
+      }
+      try {
+        await query;
+        if (mounted) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Saved'),
+              duration: Duration(milliseconds: 800),
+            ),
+          );
+        }
+      } catch (err, st) {
+        developer.log('Failed to update cell', error: err, stackTrace: st);
+        e.row.cells[e.column.field]!.value = e.oldValue;
+        _stateManager?.notifyListeners();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Update failed: $err')));
+        }
+      }
+      return;
+    }
+    
+    // Standard single primary key update logic
+    final pk = widget.table.primaryKeys.first;
     final row = e.row;
     final pkVal = row.cells[pk]?.value;
     if (pkVal == null) return;
@@ -1180,7 +1231,42 @@ class _AdminTableViewState extends State<_AdminTableView> {
     );
     if (confirm != true) return;
 
-    final pk = widget.table.primaryKey;
+    // Handle composite primary keys
+    if (widget.table.hasCompositePrimaryKey) {
+      try {
+        int deletedCount = 0;
+        for (final row in checked) {
+          var query = supabase.from(widget.table.name).delete();
+          bool hasAllKeys = true;
+          for (final pk in widget.table.primaryKeys) {
+            final pkVal = row.cells[pk]?.value;
+            if (pkVal == null) {
+              hasAllKeys = false;
+              break;
+            }
+            query = query.eq(pk, pkVal);
+          }
+          if (hasAllKeys) {
+            await query;
+            deletedCount++;
+          }
+        }
+        _stateManager!.removeRows(checked);
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Deleted $deletedCount row(s)')));
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Delete failed: $e')));
+      }
+      return;
+    }
+
+    // Standard single primary key delete logic
+    final pk = widget.table.primaryKeys.first;
     final ids = checked
         .map((r) => r.cells[pk]?.value)
         .where((v) => v != null)

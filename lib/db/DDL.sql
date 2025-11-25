@@ -47,7 +47,7 @@ CREATE TABLE academy_deanoffice (
 
     -- Foreign Key Columns
     faculty VARCHAR(200) NOT NULL,
-    department VARCHAR(200) NOT NULL, -- Replaces department_id
+    department VARCHAR(200) NOT NULL,
 
     CONSTRAINT fk_deanoffice_faculty_dept
         FOREIGN KEY (faculty, department)
@@ -74,8 +74,8 @@ CREATE TABLE academy_teacher (
     priority INTEGER NOT NULL,
 
     -- Foreign Key Columns
-    faculty_name VARCHAR(200) NOT NULL, -- Maps to 'faculty' in parent
-    department_name VARCHAR(200) NOT NULL, -- Maps to 'department' in parent (Replaces department_id)
+    faculty_name VARCHAR(200) NOT NULL,
+    department_name VARCHAR(200) NOT NULL,
 
     CONSTRAINT fk_teacher_department
         FOREIGN KEY (faculty_name, department_name)
@@ -103,7 +103,7 @@ CREATE TABLE academy_staff (
 
     -- Foreign Key Columns
     faculty VARCHAR(200) NOT NULL,
-    department VARCHAR(200) NOT NULL, -- Replaces department_id
+    department VARCHAR(200) NOT NULL,
 
     CONSTRAINT fk_staff_department
         FOREIGN KEY (faculty, department)
@@ -132,7 +132,7 @@ CREATE TABLE administration_administration (
     profile_pic VARCHAR(100),
 
     -- Foreign Key Columns
-    department_name VARCHAR(200) NOT NULL, -- Replaces department_id
+    department_name VARCHAR(200) NOT NULL,
 
     CONSTRAINT fk_admin_department_composite
         FOREIGN KEY (faculty_name, department_name)
@@ -160,7 +160,7 @@ CREATE TABLE administration_services (
 
     -- Foreign Key Columns
     faculty_name VARCHAR(200) NOT NULL,    -- Added to support composite key
-    department_name VARCHAR(200) NOT NULL, -- Replaces department_id
+    department_name VARCHAR(200) NOT NULL,
 
     CONSTRAINT fk_services_department
         FOREIGN KEY (faculty_name, department_name)
