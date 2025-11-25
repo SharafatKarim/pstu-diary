@@ -14,7 +14,7 @@ class TableModel {
   final List<String> primaryKeys; // primary key columns used for updates (supports composite keys)
   final String description; // optional: for tooltips or help text
 
-  const TableModel({
+  TableModel({
     required this.name,
     required this.label,
     required this.icon,
