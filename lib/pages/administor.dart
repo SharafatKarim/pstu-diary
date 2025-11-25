@@ -36,11 +36,11 @@ class _AdministorState extends State<Administor> {
         'icon': Icons.engineering_rounded,
       },
       {
-        'title': 'পরীক্ষা নিয়ন্ত্রক শাখা',
+        'title': 'পরীক্ষা নিয়ন্ত্রক শাখা',
         'icon': Icons.rule_folder_rounded,
       },
       {
-        'title': 'কেন্দ্রীয় গ্রন্থাগার',
+        'title': 'কেন্দ্রীয় গ্রন্থাগার',
         'icon': Icons.local_library_rounded,
       },
       {
@@ -60,7 +60,7 @@ class _AdministorState extends State<Administor> {
         'icon': Icons.payments_rounded,
       },
       {
-        'title': 'কেন্দ্রীয় গবেষনাগার',
+        'title': 'কেন্দ্রীয় গবেষনাগার',
         'icon': Icons.science_rounded,
       },
       {
