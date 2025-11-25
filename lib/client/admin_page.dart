@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:diary/main.dart';
 import 'package:diary/client/shared.dart';

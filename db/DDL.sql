@@ -1,30 +1,3 @@
--- profiles table
-create table public.profiles (
-  id uuid references auth.users on delete cascade primary key,
-  username text,
-  role text not null default 'user'
-);
-
--- Automatically create a profile when a new user signs up
-drop function if exists handle_new_user();
-create function public.handle_new_user()
-returns trigger
-language plpgsql
-security definer
-set search_path = public, pg_catalog
-as $$
-begin
-  insert into public.profiles (id)
-  values (new.id);
-  return new;
-end;
-$$;
-
-drop trigger if exists on_auth_user_created on auth.users;
-create trigger on_auth_user_created
-after insert on auth.users
-for each row execute function public.handle_new_user();
-
 -- =========================
 -- ACADEMY TABLES
 -- =========================
@@ -47,7 +20,7 @@ CREATE TABLE academy_deanoffice (
 
     -- Foreign Key Columns
     faculty VARCHAR(200) NOT NULL,
-    department VARCHAR(200) NOT NULL,
+    department VARCHAR(200) NOT NULL, -- Replaces department_id
 
     CONSTRAINT fk_deanoffice_faculty_dept
         FOREIGN KEY (faculty, department)
@@ -74,8 +47,8 @@ CREATE TABLE academy_teacher (
     priority INTEGER NOT NULL,
 
     -- Foreign Key Columns
-    faculty_name VARCHAR(200) NOT NULL,
-    department_name VARCHAR(200) NOT NULL,
+    faculty_name VARCHAR(200) NOT NULL, -- Maps to 'faculty' in parent
+    department_name VARCHAR(200) NOT NULL, -- Maps to 'department' in parent (Replaces department_id)
 
     CONSTRAINT fk_teacher_department
         FOREIGN KEY (faculty_name, department_name)
@@ -103,7 +76,7 @@ CREATE TABLE academy_staff (
 
     -- Foreign Key Columns
     faculty VARCHAR(200) NOT NULL,
-    department VARCHAR(200) NOT NULL,
+    department VARCHAR(200) NOT NULL, -- Replaces department_id
 
     CONSTRAINT fk_staff_department
         FOREIGN KEY (faculty, department)
@@ -132,7 +105,7 @@ CREATE TABLE administration_administration (
     profile_pic VARCHAR(100),
 
     -- Foreign Key Columns
-    department_name VARCHAR(200) NOT NULL,
+    department_name VARCHAR(200) NOT NULL, -- Replaces department_id
 
     CONSTRAINT fk_admin_department_composite
         FOREIGN KEY (faculty_name, department_name)
@@ -160,7 +133,7 @@ CREATE TABLE administration_services (
 
     -- Foreign Key Columns
     faculty_name VARCHAR(200) NOT NULL,    -- Added to support composite key
-    department_name VARCHAR(200) NOT NULL,
+    department_name VARCHAR(200) NOT NULL, -- Replaces department_id
 
     CONSTRAINT fk_services_department
         FOREIGN KEY (faculty_name, department_name)
@@ -226,6 +199,38 @@ UNION ALL
     'Credit: '::text || course_course.credit_hour::text AS details,
     (((((course_course.course_title::text || ' '::text) || course_course.course_code::text) || ' '::text) || course_course.faculty::text) || ' '::text) || course_course.semester::text AS search_text
    FROM course_course;
+
+-- =========================
+-- PROFILES TABLES
+-- =========================
+
+-- profiles table
+create table public.profiles (
+  id uuid references auth.users on delete cascade primary key,
+  username text,
+  role text not null default 'user'
+);
+
+-- Automatically create a profile when a new user signs up
+drop function if exists handle_new_user();
+create function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, pg_catalog
+as $$
+begin
+  insert into public.profiles (id)
+  values (new.id);
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+after insert on auth.users
+for each row execute function public.handle_new_user();
+
 
 -- =========================
 -- =========================
@@ -836,5 +841,572 @@ create policy "Admins can delete course_course"
     exists (
       select 1 from public.profiles p
       where p.id = auth.uid() and p.role = 'admin'
+    )
+  );
+
+
+-- =========================
+-- =========================
+-- POLICIES
+-- =========================
+-- =========================
+alter table public.profiles enable row level security;
+drop policy if exists "Enable read access for all users" on public.profiles;
+create policy "Enable read access for all users"
+  on public.profiles
+  to public
+  using (true);
+
+-- =========================
+-- editors can't insert/update/delete profiles
+-- =========================
+
+-- academy_deanfaculty
+alter table public.academy_deanfaculty enable row level security;
+drop policy if exists "Enable read access for all users" on public.academy_deanfaculty;
+create policy "Enable read access for all users"
+  on public.academy_deanfaculty
+  to public
+  using (true);
+
+drop policy if exists "Editors can insert academy_deanfaculty" on public.academy_deanfaculty;
+create policy "Editors can insert academy_deanfaculty"
+  on public.academy_deanfaculty
+  for insert
+  to authenticated
+  with check (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+drop policy if exists "Editors can update academy_deanfaculty" on public.academy_deanfaculty;
+create policy "Editors can update academy_deanfaculty"
+  on public.academy_deanfaculty
+  for update
+  to authenticated
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+drop policy if exists "Editors can delete academy_deanfaculty" on public.academy_deanfaculty;
+create policy "Editors can delete academy_deanfaculty"
+  on public.academy_deanfaculty
+  for delete
+  to authenticated
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+-- academy_deanoffice
+alter table public.academy_deanoffice enable row level security;
+drop policy if exists "Enable read access for all users" on public.academy_deanoffice;
+create policy "Enable read access for all users"
+  on public.academy_deanoffice
+  to public
+  using (true);
+
+drop policy if exists "Editors can insert academy_deanoffice" on public.academy_deanoffice;
+create policy "Editors can insert academy_deanoffice"
+  on public.academy_deanoffice
+  for insert
+  to authenticated
+  with check (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+drop policy if exists "Editors can update academy_deanoffice" on public.academy_deanoffice;
+create policy "Editors can update academy_deanoffice"
+  on public.academy_deanoffice
+  for update
+  to authenticated
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+drop policy if exists "Editors can delete academy_deanoffice" on public.academy_deanoffice;
+create policy "Editors can delete academy_deanoffice"
+  on public.academy_deanoffice
+  for delete
+  to authenticated
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+-- academy_department
+alter table public.academy_department enable row level security;
+drop policy if exists "Enable read access for all users" on public.academy_department;
+create policy "Enable read access for all users"
+  on public.academy_department
+  to public
+  using (true);
+
+drop policy if exists "Editors can insert academy_department" on public.academy_department;
+create policy "Editors can insert academy_department"
+  on public.academy_department
+  for insert
+  to authenticated
+  with check (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+drop policy if exists "Editors can update academy_department" on public.academy_department;
+create policy "Editors can update academy_department"
+  on public.academy_department
+  for update
+  to authenticated
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+drop policy if exists "Editors can delete academy_department" on public.academy_department;
+create policy "Editors can delete academy_department"
+  on public.academy_department
+  for delete
+  to authenticated
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+-- academy_staffdepartment
+alter table public.academy_staffdepartment enable row level security;
+drop policy if exists "Enable read access for all users" on public.academy_staffdepartment;
+create policy "Enable read access for all users"
+  on public.academy_staffdepartment
+  to public
+  using (true);
+
+drop policy if exists "Editors can insert academy_staffdepartment" on public.academy_staffdepartment;
+create policy "Editors can insert academy_staffdepartment"
+  on public.academy_staffdepartment
+  for insert
+  to authenticated
+  with check (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+drop policy if exists "Editors can update academy_staffdepartment" on public.academy_staffdepartment;
+create policy "Editors can update academy_staffdepartment"
+  on public.academy_staffdepartment
+  for update
+  to authenticated
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+drop policy if exists "Editors can delete academy_staffdepartment" on public.academy_staffdepartment;
+create policy "Editors can delete academy_staffdepartment"
+  on public.academy_staffdepartment
+  for delete
+  to authenticated
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+-- academy_staff
+alter table public.academy_staff enable row level security;
+drop policy if exists "Enable read access for all users" on public.academy_staff;
+create policy "Enable read access for all users"
+  on public.academy_staff
+  to public
+  using (true);
+
+drop policy if exists "Editors can insert academy_staff" on public.academy_staff;
+create policy "Editors can insert academy_staff"
+  on public.academy_staff
+  for insert
+  to authenticated
+  with check (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+drop policy if exists "Editors can update academy_staff" on public.academy_staff;
+create policy "Editors can update academy_staff"
+  on public.academy_staff
+  for update
+  to authenticated
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+drop policy if exists "Editors can delete academy_staff" on public.academy_staff;
+create policy "Editors can delete academy_staff"
+  on public.academy_staff
+  for delete
+  to authenticated
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+-- academy_teacher
+alter table public.academy_teacher enable row level security;
+drop policy if exists "Enable read access for all users" on public.academy_teacher;
+create policy "Enable read access for all users"
+  on public.academy_teacher
+  to public
+  using (true);
+
+drop policy if exists "Editors can insert academy_teacher" on public.academy_teacher;
+create policy "Editors can insert academy_teacher"
+  on public.academy_teacher
+  for insert
+  to authenticated
+  with check (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+drop policy if exists "Editors can update academy_teacher" on public.academy_teacher;
+create policy "Editors can update academy_teacher"
+  on public.academy_teacher
+  for update
+  to authenticated
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+drop policy if exists "Editors can delete academy_teacher" on public.academy_teacher;
+create policy "Editors can delete academy_teacher"
+  on public.academy_teacher
+  for delete
+  to authenticated
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+-- administration_administrationdepartment
+alter table public.administration_administrationdepartment enable row level security;
+drop policy if exists "Enable read access for all users" on public.administration_administrationdepartment;
+create policy "Enable read access for all users"
+  on public.administration_administrationdepartment
+  to public
+  using (true);
+
+drop policy if exists "Editors can insert administration_administrationdepartment" on public.administration_administrationdepartment;
+create policy "Editors can insert administration_administrationdepartment"
+  on public.administration_administrationdepartment
+  for insert
+  to authenticated
+  with check (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+drop policy if exists "Editors can update administration_administrationdepartment" on public.administration_administrationdepartment;
+create policy "Editors can update administration_administrationdepartment"
+  on public.administration_administrationdepartment
+  for update
+  to authenticated
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+drop policy if exists "Editors can delete administration_administrationdepartment" on public.administration_administrationdepartment;
+create policy "Editors can delete administration_administrationdepartment"
+  on public.administration_administrationdepartment
+  for delete
+  to authenticated
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+-- administration_administration
+alter table public.administration_administration enable row level security;
+drop policy if exists "Enable read access for all users" on public.administration_administration;
+create policy "Enable read access for all users"
+  on public.administration_administration
+  to public
+  using (true);
+
+drop policy if exists "Editors can insert administration_administration" on public.administration_administration;
+create policy "Editors can insert administration_administration"
+  on public.administration_administration
+  for insert
+  to authenticated
+  with check (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+drop policy if exists "Editors can update administration_administration" on public.administration_administration;
+create policy "Editors can update administration_administration"
+  on public.administration_administration
+  for update
+  to authenticated
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+drop policy if exists "Editors can delete administration_administration" on public.administration_administration;
+create policy "Editors can delete administration_administration"
+  on public.administration_administration
+  for delete
+  to authenticated
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+-- administration_servicedepartment
+alter table public.administration_servicedepartment enable row level security;
+drop policy if exists "Enable read access for all users" on public.administration_servicedepartment;
+create policy "Enable read access for all users"
+  on public.administration_servicedepartment
+  to public
+  using (true);
+
+drop policy if exists "Editors can insert administration_servicedepartment" on public.administration_servicedepartment;
+create policy "Editors can insert administration_servicedepartment"
+  on public.administration_servicedepartment
+  for insert
+  to authenticated
+  with check (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+drop policy if exists "Editors can update administration_servicedepartment" on public.administration_servicedepartment;
+create policy "Editors can update administration_servicedepartment"
+  on public.administration_servicedepartment
+  for update
+  to authenticated
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+drop policy if exists "Editors can delete administration_servicedepartment" on public.administration_servicedepartment;
+create policy "Editors can delete administration_servicedepartment"
+  on public.administration_servicedepartment
+  for delete
+  to authenticated
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+-- administration_services
+alter table public.administration_services enable row level security;
+drop policy if exists "Enable read access for all users" on public.administration_services;
+create policy "Enable read access for all users"
+  on public.administration_services
+  to public
+  using (true);
+
+drop policy if exists "Editors can insert administration_services" on public.administration_services;
+create policy "Editors can insert administration_services"
+  on public.administration_services
+  for insert
+  to authenticated
+  with check (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+drop policy if exists "Editors can update administration_services" on public.administration_services;
+create policy "Editors can update administration_services"
+  on public.administration_services
+  for update
+  to authenticated
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+drop policy if exists "Editors can delete administration_services" on public.administration_services;
+create policy "Editors can delete administration_services"
+  on public.administration_services
+  for delete
+  to authenticated
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+-- course_course
+alter table public.course_course enable row level security;
+drop policy if exists "Enable read access for all users" on public.course_course;
+create policy "Enable read access for all users"
+  on public.course_course
+  to public
+  using (true);
+
+drop policy if exists "Editors can insert course_course" on public.course_course;
+create policy "Editors can insert course_course"
+  on public.course_course
+  for insert
+  to authenticated
+  with check (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+drop policy if exists "Editors can update course_course" on public.course_course;
+create policy "Editors can update course_course"
+  on public.course_course
+  for update
+  to authenticated
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
+    )
+  );
+
+drop policy if exists "Editors can delete course_course" on public.course_course;
+create policy "Editors can delete course_course"
+  on public.course_course
+  for delete
+  to authenticated
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'editor'
     )
   );
