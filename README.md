@@ -6,6 +6,8 @@ It stores contact information of our University "Patuakhali Science and Technolo
 
 ## Setups
 
+### Local Setup
+
 Follow these steps to set up the project locally.
 
 1) Prerequisites
@@ -54,3 +56,28 @@ flutter run
 
 > [!CAUTION]
 > Note: Ensure your emulator/device is running before executing flutter run.
+
+### Vercel Deployment
+
+Import the project to vercel using GitHub, and use the following build settings:
+
+1) Build Command:
+
+```bash
+echo -e "SUPABASE_URL='<SUPABASE_URL>'\nSUPABASE_ANON_KEY='<SUPABASE_ANON_KEY>'" > .env && flutter/bin/flutter build web`
+```
+
+> [!WARNING]
+> Make sure to replace `<SUPABASE_URL>` and `<SUPABASE_ANON_KEY>` with your actual Supabase project URL and anon key.
+
+2) Output Directory:
+
+```txt
+build/web
+```
+
+3) Install Command:
+
+```bash
+if cd flutter; then git pull && cd .. ; else git clone https://github.com/flutter/flutter.git; fi && ls && flutter/bin/flutter doctor && flutter/bin/flutter clean && flutter/bin/flutter config --enable-web
+```
