@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 -- =========================
 -- ACADEMY TABLES
 -- =========================
@@ -233,126 +232,6 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
 after insert on auth.users
 for each row execute function public.handle_new_user();
-
-<<<<<<< HEAD
-=======
--- =========================
--- ACADEMY TABLES
--- =========================
-CREATE TABLE academy_deanfaculty (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    faculty VARCHAR(200) NOT NULL,
-    department VARCHAR(200) NOT NULL
-);
-
-CREATE TABLE academy_deanoffice (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name VARCHAR(200) NOT NULL,
-    phone_number VARCHAR(11) NOT NULL,
-    email VARCHAR(150) NOT NULL,
-    designation VARCHAR(200) NOT NULL,
-    faculty VARCHAR(200) NOT NULL,
-    priority INTEGER NOT NULL,
-    department_id BIGINT NOT NULL,
-    CONSTRAINT fk_deanoffice_department
-        FOREIGN KEY (department_id) REFERENCES academy_deanfaculty (id)
-        ON DELETE CASCADE
-);
-
-CREATE TABLE academy_department (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    faculty VARCHAR(200) NOT NULL,
-    department VARCHAR(200) NOT NULL
-);
-
-CREATE TABLE academy_staffdepartment (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    faculty VARCHAR(200) NOT NULL,
-    department VARCHAR(200) NOT NULL
-);
-
-CREATE TABLE academy_staff (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name VARCHAR(200) NOT NULL,
-    phone_number VARCHAR(11) NOT NULL,
-    email VARCHAR(150),
-    designation VARCHAR(200) NOT NULL,
-    faculty VARCHAR(200) NOT NULL,
-    priority INTEGER NOT NULL,
-    department_id BIGINT NOT NULL,
-    CONSTRAINT fk_staff_department
-        FOREIGN KEY (department_id) REFERENCES academy_staffdepartment (id)
-        ON DELETE CASCADE
-);
-
-CREATE TABLE academy_teacher (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name VARCHAR(200) NOT NULL,
-    phone_number VARCHAR(11) NOT NULL,
-    profile_pic VARCHAR(100),
-    email VARCHAR(150) NOT NULL,
-    designation VARCHAR(200) NOT NULL,
-    faculty_name VARCHAR(200) NOT NULL,
-    priority INTEGER NOT NULL,
-    department_id BIGINT NOT NULL
-    -- Add FK if needed
-);
-
--- =========================
--- ADMINISTRATION TABLES
--- =========================
-CREATE TABLE administration_administrationdepartment (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    faculty VARCHAR(200) NOT NULL,
-    department VARCHAR(200) NOT NULL
-);
-
-CREATE TABLE administration_administration (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name VARCHAR(200) NOT NULL,
-    phone_number VARCHAR(11) NOT NULL,
-    email VARCHAR(150) NOT NULL,
-    designation VARCHAR(200) NOT NULL,
-    faculty_name VARCHAR(200) NOT NULL,
-    priority INTEGER NOT NULL,
-    department_id BIGINT NOT NULL,
-    profile_pic VARCHAR(100),
-    CONSTRAINT fk_admin_department
-        FOREIGN KEY (department_id) REFERENCES administration_administrationdepartment (id)
-        ON DELETE CASCADE
-);
-
-CREATE TABLE administration_servicedepartment (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    faculty_name VARCHAR(200) NOT NULL,
-    department VARCHAR(200) NOT NULL
-);
-
-CREATE TABLE administration_services (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name VARCHAR(200),
-    phone VARCHAR(20) NOT NULL,
-    designation VARCHAR(200),
-    email VARCHAR(254),
-    priority INTEGER NOT NULL,
-    department_id BIGINT NOT NULL,
-    CONSTRAINT fk_services_department
-        FOREIGN KEY (department_id) REFERENCES administration_servicedepartment (id)
-        ON DELETE CASCADE
-);
-
--- =========================
--- COURSE TABLE
--- =========================
-CREATE TABLE course_course (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    course_title VARCHAR(200) NOT NULL,
-    course_code VARCHAR(200) NOT NULL,
-    credit_hour NUMERIC(5,2) NOT NULL,
-    faculty VARCHAR(200) NOT NULL,
-    semester VARCHAR(200) NOT NULL
-);
->>>>>>> c598403 (basic-documentation)
 
 -- =========================
 -- =========================
@@ -965,7 +844,6 @@ create policy "Admins can delete course_course"
       where p.id = auth.uid() and p.role = 'admin'
     )
   );
-<<<<<<< HEAD
 
 
 -- =========================
@@ -1533,5 +1411,3 @@ create policy "Editors can delete course_course"
       where p.id = auth.uid() and p.role = 'editor'
     )
   );
-=======
->>>>>>> c598403 (basic-documentation)

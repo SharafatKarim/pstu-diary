@@ -10,12 +10,14 @@ import 'package:diary/client/service_page.dart';
 import 'package:diary/client/shared.dart';
 import 'package:diary/main.dart';
 import 'package:diary/pages/my_home_page.dart';
+import 'package:diary/pages/search_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 final router = GoRouter(
   routes: [
     GoRoute(path: '/', builder: (context, state) => const MyHomePage()),
+    GoRoute(path: '/search', builder: (context, state) => const SearchPage()),
     GoRoute(
       path: '/faculty',
       builder: (context, state) {
@@ -30,10 +32,13 @@ final router = GoRouter(
         return AdminPage(name: name);
       },
     ),
-    GoRoute(path: '/services', builder: (context, state) {
-      final name = state.uri.queryParameters['name'] ?? '';
-      return ServicePage(name: name);
-    }),
+    GoRoute(
+      path: '/services',
+      builder: (context, state) {
+        final name = state.uri.queryParameters['name'] ?? '';
+        return ServicePage(name: name);
+      },
+    ),
     GoRoute(
       path: '/person-detail',
       builder: (context, state) {
@@ -63,9 +68,9 @@ final router = GoRouter(
               .select('role')
               .eq('id', session.user.id)
               .single();
-          
+
           developer.log('User role: ${role['role']}');
-          
+
           if (role['role'] == 'admin') {
             return '/admin';
           }

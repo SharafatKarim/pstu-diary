@@ -4,12 +4,14 @@ class ResponsiveLayout extends StatelessWidget {
   final Widget child;
   final int selectedIndex;
   final ValueChanged<int> onDestinationSelected;
+  final VoidCallback? onSearchPressed;
 
   const ResponsiveLayout({
     super.key,
     required this.child,
     required this.selectedIndex,
     required this.onDestinationSelected,
+    this.onSearchPressed,
   });
 
   @override
@@ -45,6 +47,13 @@ class ResponsiveLayout extends StatelessWidget {
                 ),
               ],
             ),
+            floatingActionButton: onSearchPressed != null
+                ? FloatingActionButton(
+                    onPressed: onSearchPressed,
+                    tooltip: 'Search Database',
+                    child: const Icon(Icons.search),
+                  )
+                : null,
           );
         } else {
           return Scaffold(
@@ -81,6 +90,13 @@ class ResponsiveLayout extends StatelessWidget {
                 Expanded(child: child),
               ],
             ),
+            floatingActionButton: onSearchPressed != null
+                ? FloatingActionButton(
+                    onPressed: onSearchPressed,
+                    tooltip: 'Search Database',
+                    child: const Icon(Icons.search),
+                  )
+                : null,
           );
         }
       },

@@ -36,7 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    if (supabase.auth.currentUser !=null) {
+    if (supabase.auth.currentUser != null) {
       _checkRole();
     }
   }
@@ -75,11 +75,16 @@ class _MyHomePageState extends State<MyHomePage> {
   //   );
   // }
 
+  void _handleSearch() {
+    context.push('/search');
+  }
+
   @override
   Widget build(BuildContext context) {
     return ResponsiveLayout(
       selectedIndex: _selectedIndex,
       onDestinationSelected: (index) => setState(() => _selectedIndex = index),
+      onSearchPressed: _handleSearch,
       child: _screens[_selectedIndex],
     );
   }
