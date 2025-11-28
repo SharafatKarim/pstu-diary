@@ -1,4 +1,5 @@
 import 'package:diary/shared/constants.dart';
+import 'package:diary/pages/chatbot_page.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -17,6 +18,7 @@ class _ExtrasState extends State<Extras> {
 
     final pages = [
       {'title': 'Campus Map', 'icon': Icons.map_outlined},
+      {'title': 'PSTU Guide', 'icon': Icons.chat_bubble_outline},
     ];
 
     final palettes = [
@@ -66,6 +68,13 @@ class _ExtrasState extends State<Extras> {
                   if (item['title'] == 'Campus Map') {
                     final url = Constants.googleMap;
                     launchUrl(Uri.parse(url));
+                  } else if (item['title'] == 'PSTU Guide') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ChatbotPage(),
+                      ),
+                    );
                   }
                 },
                 child: Ink(
