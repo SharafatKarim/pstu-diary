@@ -159,53 +159,142 @@ CREATE TABLE course_course (
 -- =========================
 -- =========================
 
-create view public.global_search_view with (security_invoker = on) as
- SELECT 'teacher'::text AS type,
+-- DROP VIEW IF EXISTS public.global_search_view;
+CREATE VIEW public.global_search_view WITH (security_invoker = on) AS
+
+-- 1. TEACHER
+SELECT 
+    'teacher'::text AS type,
     academy_teacher.id::text AS reference_id,
     academy_teacher.name AS title,
     academy_teacher.designation AS subtitle,
     academy_teacher.email AS details,
-    (((((((academy_teacher.name::text || ' '::text) || academy_teacher.designation::text) || ' '::text) || academy_teacher.faculty_name::text) || ' '::text) || academy_teacher.department_name::text) || ' '::text) || academy_teacher.phone_number::text AS search_text
-   FROM academy_teacher
+    -- Normalized Columns
+    academy_teacher.phone_number,
+    academy_teacher.designation,
+    academy_teacher.faculty_name AS faculty,
+    academy_teacher.department_name AS department,
+    academy_teacher.profile_pic, -- Added profile_pic
+    -- Search Text (Concatenates all fields for easy filtering)
+    (
+        COALESCE(academy_teacher.name, '') || ' ' || 
+        COALESCE(academy_teacher.designation, '') || ' ' || 
+        COALESCE(academy_teacher.faculty_name, '') || ' ' || 
+        COALESCE(academy_teacher.department_name, '') || ' ' || 
+        COALESCE(academy_teacher.phone_number, '') || ' ' || 
+        COALESCE(academy_teacher.email, '')
+    ) AS search_text
+FROM academy_teacher
+
 UNION ALL
- SELECT 'staff'::text AS type,
+
+-- 2. STAFF
+SELECT 
+    'staff'::text AS type,
     academy_staff.id::text AS reference_id,
     academy_staff.name AS title,
     academy_staff.designation AS subtitle,
     academy_staff.email AS details,
-    (((((((academy_staff.name::text || ' '::text) || academy_staff.designation::text) || ' '::text) || academy_staff.faculty::text) || ' '::text) || academy_staff.department::text) || ' '::text) || academy_staff.phone_number::text AS search_text
-   FROM academy_staff
+    -- Normalized Columns
+    academy_staff.phone_number,
+    academy_staff.designation,
+    academy_staff.faculty,
+    academy_staff.department,
+    NULL::text AS profile_pic, -- No profile_pic column in staff table
+    -- Search Text
+    (
+        COALESCE(academy_staff.name, '') || ' ' || 
+        COALESCE(academy_staff.designation, '') || ' ' || 
+        COALESCE(academy_staff.faculty, '') || ' ' || 
+        COALESCE(academy_staff.department, '') || ' ' || 
+        COALESCE(academy_staff.phone_number, '') || ' ' || 
+        COALESCE(academy_staff.email, '')
+    ) AS search_text
+FROM academy_staff
+
 UNION ALL
- SELECT 'dean_office'::text AS type,
+
+-- 3. DEAN OFFICE
+SELECT 
+    'dean_office'::text AS type,
     academy_deanoffice.id::text AS reference_id,
     academy_deanoffice.name AS title,
     academy_deanoffice.designation AS subtitle,
     academy_deanoffice.email AS details,
-    (((((((academy_deanoffice.name::text || ' '::text) || academy_deanoffice.designation::text) || ' '::text) || academy_deanoffice.faculty::text) || ' '::text) || academy_deanoffice.department::text) || ' '::text) || academy_deanoffice.phone_number::text AS search_text
-   FROM academy_deanoffice
+    -- Normalized Columns
+    academy_deanoffice.phone_number,
+    academy_deanoffice.designation,
+    academy_deanoffice.faculty,
+    academy_deanoffice.department,
+    NULL::text AS profile_pic, -- No profile_pic column in dean office table
+    -- Search Text
+    (
+        COALESCE(academy_deanoffice.name, '') || ' ' || 
+        COALESCE(academy_deanoffice.designation, '') || ' ' || 
+        COALESCE(academy_deanoffice.faculty, '') || ' ' || 
+        COALESCE(academy_deanoffice.department, '') || ' ' || 
+        COALESCE(academy_deanoffice.phone_number, '') || ' ' || 
+        COALESCE(academy_deanoffice.email, '')
+    ) AS search_text
+FROM academy_deanoffice
+
 UNION ALL
- SELECT 'admin'::text AS type,
+
+-- 4. ADMINISTRATION
+SELECT 
+    'admin'::text AS type,
     administration_administration.id::text AS reference_id,
     administration_administration.name AS title,
     administration_administration.designation AS subtitle,
     administration_administration.email AS details,
-    (((((((administration_administration.name::text || ' '::text) || administration_administration.designation::text) || ' '::text) || administration_administration.faculty_name::text) || ' '::text) || administration_administration.department_name::text) || ' '::text) || administration_administration.phone_number::text AS search_text
-   FROM administration_administration
+    -- Normalized Columns
+    administration_administration.phone_number,
+    administration_administration.designation,
+    administration_administration.faculty_name AS faculty,
+    administration_administration.department_name AS department,
+    administration_administration.profile_pic, -- Added profile_pic
+    -- Search Text
+    (
+        COALESCE(administration_administration.name, '') || ' ' || 
+        COALESCE(administration_administration.designation, '') || ' ' || 
+        COALESCE(administration_administration.faculty_name, '') || ' ' || 
+        COALESCE(administration_administration.department_name, '') || ' ' || 
+        COALESCE(administration_administration.phone_number, '') || ' ' || 
+        COALESCE(administration_administration.email, '')
+    ) AS search_text
+FROM administration_administration
+
 UNION ALL
- SELECT 'course'::text AS type,
-    course_course.id::text AS reference_id,
-    course_course.course_title AS title,
-    course_course.course_code AS subtitle,
-    'Credit: '::text || course_course.credit_hour::text AS details,
-    (((((course_course.course_title::text || ' '::text) || course_course.course_code::text) || ' '::text) || course_course.faculty::text) || ' '::text) || course_course.semester::text AS search_text
-   FROM course_course;
+
+-- 5. SERVICES
+-- Note: 'phone' is aliased to 'phone_number' to match other tables
+SELECT 
+    'service'::text AS type,
+    administration_services.id::text AS reference_id,
+    administration_services.name AS title,
+    administration_services.designation AS subtitle,
+    administration_services.email AS details,
+    -- Normalized Columns
+    administration_services.phone AS phone_number,
+    administration_services.designation,
+    administration_services.faculty_name AS faculty,
+    administration_services.department_name AS department,
+    NULL::text AS profile_pic, -- No profile_pic column in services table
+    -- Search Text
+    (
+        COALESCE(administration_services.name, '') || ' ' || 
+        COALESCE(administration_services.designation, '') || ' ' || 
+        COALESCE(administration_services.faculty_name, '') || ' ' || 
+        COALESCE(administration_services.department_name, '') || ' ' || 
+        COALESCE(administration_services.phone, '') || ' ' || 
+        COALESCE(administration_services.email, '')
+    ) AS search_text
+FROM administration_services;
 
 -- =========================
 -- PROFILES TABLES
 -- =========================
 
-=======
->>>>>>> c598403 (basic-documentation)
 -- profiles table
 create table public.profiles (
   id uuid references auth.users on delete cascade primary key,

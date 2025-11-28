@@ -1,5 +1,7 @@
+import 'package:diary/client/shared.dart';
 import 'package:diary/main.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -14,6 +16,11 @@ class SearchResult {
   final String title;
   final String subtitle;
   final String? details;
+  final String? phoneNumber;
+  final String? designation;
+  final String? faculty;
+  final String? department;
+  final String? profilePic;
 
   const SearchResult({
     required this.type,
@@ -21,7 +28,22 @@ class SearchResult {
     required this.title,
     required this.subtitle,
     this.details,
+    this.phoneNumber,
+    this.designation,
+    this.faculty,
+    this.department,
+    this.profilePic,
   });
+
+  String? get formattedPhone {
+    if (phoneNumber == null) return null;
+    final phone = phoneNumber!.trim();
+    // If phone starts with '1', prepend '0'
+    if (phone.startsWith('1') && !phone.startsWith('+')) {
+      return '0$phone';
+    }
+    return phone;
+  }
 }
 
 class _SearchPageState extends State<SearchPage> {
@@ -65,6 +87,11 @@ class _SearchPageState extends State<SearchPage> {
               title: item['title'] ?? '',
               subtitle: item['subtitle'] ?? '',
               details: item['details'],
+              phoneNumber: item['phone_number'],
+              designation: item['designation'],
+              faculty: item['faculty'],
+              department: item['department'],
+              profilePic: item['profile_pic'],
             ),
           )
           .toList();
@@ -94,8 +121,8 @@ class _SearchPageState extends State<SearchPage> {
         return Icons.account_balance;
       case 'admin':
         return Icons.admin_panel_settings;
-      case 'course':
-        return Icons.book;
+      case 'service':
+        return Icons.room_service;
       default:
         return Icons.help_outline;
     }
@@ -111,29 +138,27 @@ class _SearchPageState extends State<SearchPage> {
         return 'Dean Office';
       case 'admin':
         return 'Admin';
-      case 'course':
-        return 'Course';
+      case 'service':
+        return 'Service';
       default:
         return type;
     }
   }
 
   void _handleResultTap(SearchResult result) {
-    // For now, show a snackbar. You can implement navigation based on type
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${_getDisplayType(result.type)}: ${result.title}'),
-        action: SnackBarAction(label: 'OK', onPressed: () {}),
-      ),
+    // Create PersonItem from SearchResult
+    final person = PersonItem(
+      name: result.title,
+      designation: result.designation ?? result.subtitle,
+      department: result.department ?? '',
+      phone: result.formattedPhone,
+      email: result.details,
+      profilePic: result.profilePic,
+      priority: null,
     );
 
-    // TODO: Implement proper navigation based on type
-    // Example:
-    // if (result.type == 'teacher') {
-    //   context.push('/teacher-detail', extra: result.referenceId);
-    // } else if (result.type == 'course') {
-    //   context.push('/course-detail', extra: result.referenceId);
-    // }
+    // Navigate to person detail page
+    context.push('/person-detail', extra: person);
   }
 
   @override
@@ -147,7 +172,7 @@ class _SearchPageState extends State<SearchPage> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Search teachers, staff, admins, courses...',
+                hintText: 'Search teachers, staff, admins, services...',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
@@ -193,7 +218,7 @@ class _SearchPageState extends State<SearchPage> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Search for teachers, staff, admins, or courses',
+                      'Search for teachers, staff, admins, or services',
                       style: Theme.of(context).textTheme.bodyLarge,
                       textAlign: TextAlign.center,
                     ),
@@ -214,17 +239,35 @@ class _SearchPageState extends State<SearchPage> {
                     ),
                     child: ListTile(
                       leading: CircleAvatar(
-                        child: Icon(_getIconForType(result.type)),
+                        backgroundImage: result.profilePic != null
+                            ? NetworkImage(result.profilePic!)
+                            : null,
+                        child: result.profilePic == null
+                            ? Icon(_getIconForType(result.type))
+                            : null,
                       ),
                       title: Text(result.title),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(result.subtitle),
+                          if (result.designation != null)
+                            Text(result.designation!),
+                          if (result.faculty != null)
+                            Text(
+                              result.faculty!,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          if (result.department != null)
+                            Text(
+                              result.department!,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(fontStyle: FontStyle.italic),
+                            ),
                           if (result.details != null)
                             Text(
                               result.details!,
-                              style: Theme.of(context).textTheme.bodySmall,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: Colors.blue),
                             ),
                         ],
                       ),

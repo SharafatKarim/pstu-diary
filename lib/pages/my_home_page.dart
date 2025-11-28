@@ -11,8 +11,6 @@ import 'package:diary/widgets/responsive_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-// TODO: Redirect to admin if logged in as admin
-
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
 
