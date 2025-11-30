@@ -291,6 +291,67 @@ SELECT
     ) AS search_text
 FROM administration_services;
 
+-- =============================================
+-- 1. ENABLE EXTENSIONS (Required for Search)
+-- =============================================
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+-- =============================================
+-- 2. COMPOSITE INDEXES (Filtering + Sorting)
+-- =============================================
+-- These speed up queries like: "WHERE department = 'CSE' ORDER BY priority"
+
+-- Dean Office
+CREATE INDEX idx_deanoffice_sort 
+ON academy_deanoffice(faculty, department, priority);
+
+-- Teacher (Note: uses faculty_name/department_name)
+CREATE INDEX idx_teacher_sort 
+ON academy_teacher(faculty_name, department_name, priority);
+
+-- Staff
+CREATE INDEX idx_staff_sort 
+ON academy_staff(faculty, department, priority);
+
+-- Administration
+CREATE INDEX idx_admin_sort 
+ON administration_administration(faculty_name, department_name, priority);
+
+-- Services
+CREATE INDEX idx_services_sort 
+ON administration_services(faculty_name, department_name, priority);
+
+-- =============================================
+-- 3. SEARCH INDEXES (GIN / Trigram)
+-- =============================================
+-- These speed up your global_search_view significantly for "Fuzzy" matching.
+
+-- Teacher Search
+CREATE INDEX trgm_idx_teacher_name ON academy_teacher USING gin (name gin_trgm_ops);
+CREATE INDEX trgm_idx_teacher_desig ON academy_teacher USING gin (designation gin_trgm_ops);
+
+-- Staff Search
+CREATE INDEX trgm_idx_staff_name ON academy_staff USING gin (name gin_trgm_ops);
+
+-- Dean Office Search
+CREATE INDEX trgm_idx_dean_name ON academy_deanoffice USING gin (name gin_trgm_ops);
+
+-- Administration Search
+CREATE INDEX trgm_idx_admin_name ON administration_administration USING gin (name gin_trgm_ops);
+
+-- Services Search
+CREATE INDEX trgm_idx_services_name ON administration_services USING gin (name gin_trgm_ops);
+
+-- =============================================
+-- 4. COURSE TABLE OPTIMIZATION
+-- =============================================
+
+-- Fast lookup by Course Code
+CREATE INDEX idx_course_code ON course_course(course_code);
+
+-- Filtering courses by Faculty and Semester
+CREATE INDEX idx_course_filter ON course_course(faculty, semester);
+
 -- =========================
 -- PROFILES TABLES
 -- =========================
