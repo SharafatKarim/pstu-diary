@@ -140,23 +140,23 @@ class _SettingsState extends State<Settings> {
             leading: const Icon(Icons.help_outline),
             title: const Text('Help Center'),
             onTap: () =>
-                _showInfo(context, 'Help', 'Help Center not implemented.'),
+                _showInfo(context, 'Help', 'For help & support, please share a mail sharafat@duck.com'),
           ),
           const Divider(height: 0),
           ListTile(
             leading: const Icon(Icons.lock_outline),
             title: const Text('Privacy & Security'),
-            trailing: const Icon(Icons.chevron_right),
             onTap: () => _showInfo(
               context,
               'Privacy & Security',
-              'Privacy & Security not defined yet.',
+              'No data is collected whatsoever. Supabase is used only for authentication and data fetching purposes.',
             ),
           ),
           const Divider(height: 0),
           ListTile(
             leading: const Icon(Icons.info_outline),
             title: const Text('About App'),
+            trailing: const Icon(Icons.chevron_right),
             onTap: () => showAboutDialog(
               context: context,
               applicationName: Constants.appName,
