@@ -9,7 +9,7 @@ class AppLocalizationsBn extends AppLocalizations {
   AppLocalizationsBn([String locale = 'bn']) : super(locale);
 
   @override
-  String get title => 'PSTU ডায়েরি';
+  String get title => 'PSTU ডায়েরি';
 
   @override
   String get helloWorld => 'স্বাগতম বিশ্ব!';
@@ -19,5 +19,5 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get description =>
-      'PSTU Diary is a cross-platform application designed to help students and faculty members of Patuakhali Science and Technology University (PSTU) efficiently access resources and contact information of various departments, faculties, and administrative offices. The app aims to provide a user-friendly interface for quick navigation and retrieval of essential information, enhancing the overall experience of the university community.';
+      'PSTU Diary is a cross-platform application designed to help students and faculty members of Patuakhali Science and Technology University (PSTU) efficiently access resources and contact information of various departments, faculties, and administrative offices. The app aims to provide a user-friendly interface for quick navigation and retrieval of essential information, enhancing the overall experience of the university community. First PSTU-Diary based app was developed by Monir Hossain Noyon brother, under guidance of Md. Mahbubur Rahman sir. This app follows the legacy of that app, alongside same database structure and some refinements.';
 }

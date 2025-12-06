@@ -1,5 +1,8 @@
 {
-  "title": "PSTU ডায়েরি",
+  "title": "PSTU ডায়েরি",
   "helloWorld": "স্বাগতম বিশ্ব!",
-  "displayText": "এটি একটি নমুনা অ্যাপ"
+  "displayText": "এটি একটি নমুনা অ্যাপ",
+  "@helloWorld": {
+    "description": "PSTU ডায়েরির জন্য নমুনা অ্যাপ"
+  }
 }
