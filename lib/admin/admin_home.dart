@@ -5,9 +5,294 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
-// Dropdown options for select columns
+// Static dropdown options (these don't need database fetch)
 const List<String> profileRoleOptions = ['admin', 'editor', 'user'];
 
+// Global cache for dropdown data
+class DropdownCache {
+  static Map<String, List<String>>? _designationCache;
+  static List<Map<String, String>>? _deanFacultyOptions;
+  static List<Map<String, String>>? _academyDepartmentOptions;
+  static List<Map<String, String>>? _academyStaffDepartmentOptions;
+  static List<Map<String, String>>? _administrationDepartmentOptions;
+  static List<Map<String, String>>? _serviceDepartmentOptions;
+
+  static bool _isLoaded = false;
+
+  static bool get isLoaded => _isLoaded;
+
+  static Future<void> loadAllDropdownData() async {
+    if (_isLoaded) return;
+
+    try {
+      // Fetch all designations from existing data
+      final deanOfficeDesignations = await supabase
+          .from('academy_deanoffice')
+          .select('designation')
+          .then(
+            (data) =>
+                (data as List)
+                    .map((e) => e['designation']?.toString() ?? '')
+                    .where((s) => s.isNotEmpty)
+                    .toSet()
+                    .toList()
+                  ..sort(),
+          );
+
+      final teacherDesignations = await supabase
+          .from('academy_teacher')
+          .select('designation')
+          .then(
+            (data) =>
+                (data as List)
+                    .map((e) => e['designation']?.toString() ?? '')
+                    .where((s) => s.isNotEmpty)
+                    .toSet()
+                    .toList()
+                  ..sort(),
+          );
+
+      final administrationDesignations = await supabase
+          .from('administration_administration')
+          .select('designation')
+          .then(
+            (data) =>
+                (data as List)
+                    .map((e) => e['designation']?.toString() ?? '')
+                    .where((s) => s.isNotEmpty)
+                    .toSet()
+                    .toList()
+                  ..sort(),
+          );
+
+      final staffDesignations = await supabase
+          .from('academy_staff')
+          .select('designation')
+          .then(
+            (data) =>
+                (data as List)
+                    .map((e) => e['designation']?.toString() ?? '')
+                    .where((s) => s.isNotEmpty)
+                    .toSet()
+                    .toList()
+                  ..sort(),
+          );
+
+      final servicesDesignations = await supabase
+          .from('administration_services')
+          .select('designation')
+          .then(
+            (data) =>
+                (data as List)
+                    .map((e) => e['designation']?.toString() ?? '')
+                    .where((s) => s.isNotEmpty)
+                    .toSet()
+                    .toList()
+                  ..sort(),
+          );
+
+      _designationCache = {
+        'deanoffice': deanOfficeDesignations,
+        'teacher': teacherDesignations,
+        'staff': staffDesignations,
+        'administration': administrationDesignations,
+        'services': servicesDesignations,
+      };
+
+      // Fetch faculty-department combinations
+      _deanFacultyOptions = await supabase
+          .from('academy_deanfaculty')
+          .select('faculty, department')
+          .then(
+            (data) => (data as List)
+                .map(
+                  (e) => {
+                    'faculty': e['faculty']?.toString() ?? '',
+                    'department': e['department']?.toString() ?? '',
+                  },
+                )
+                .where(
+                  (m) =>
+                      m['faculty']!.isNotEmpty && m['department']!.isNotEmpty,
+                )
+                .toList(),
+          );
+
+      _academyDepartmentOptions = await supabase
+          .from('academy_department')
+          .select('faculty, department')
+          .then(
+            (data) => (data as List)
+                .map(
+                  (e) => {
+                    'faculty': e['faculty']?.toString() ?? '',
+                    'department': e['department']?.toString() ?? '',
+                  },
+                )
+                .where(
+                  (m) =>
+                      m['faculty']!.isNotEmpty && m['department']!.isNotEmpty,
+                )
+                .toList(),
+          );
+
+      _academyStaffDepartmentOptions = await supabase
+          .from('academy_staffdepartment')
+          .select('faculty, department')
+          .then(
+            (data) => (data as List)
+                .map(
+                  (e) => {
+                    'faculty': e['faculty']?.toString() ?? '',
+                    'department': e['department']?.toString() ?? '',
+                  },
+                )
+                .where(
+                  (m) =>
+                      m['faculty']!.isNotEmpty && m['department']!.isNotEmpty,
+                )
+                .toList(),
+          );
+
+      _administrationDepartmentOptions = await supabase
+          .from('administration_administrationdepartment')
+          .select('faculty, department')
+          .then(
+            (data) => (data as List)
+                .map(
+                  (e) => {
+                    'faculty': e['faculty']?.toString() ?? '',
+                    'department': e['department']?.toString() ?? '',
+                  },
+                )
+                .where(
+                  (m) =>
+                      m['faculty']!.isNotEmpty && m['department']!.isNotEmpty,
+                )
+                .toList(),
+          );
+
+      _serviceDepartmentOptions = await supabase
+          .from('administration_servicedepartment')
+          .select('faculty_name, department')
+          .then(
+            (data) => (data as List)
+                .map(
+                  (e) => {
+                    'faculty': e['faculty_name']?.toString() ?? '',
+                    'department': e['department']?.toString() ?? '',
+                  },
+                )
+                .where(
+                  (m) =>
+                      m['faculty']!.isNotEmpty && m['department']!.isNotEmpty,
+                )
+                .toList(),
+          );
+
+      _isLoaded = true;
+    } catch (e, st) {
+      developer.log('Failed to load dropdown data', error: e, stackTrace: st);
+      rethrow;
+    }
+  }
+
+  static List<String> getDesignations(String type) {
+    return _designationCache?[type] ?? [];
+  }
+
+  static List<String> getUniqueFaculties(String tableType) {
+    List<Map<String, String>>? data;
+    switch (tableType) {
+      case 'deanfaculty':
+        data = _deanFacultyOptions;
+        break;
+      case 'department':
+        data = _academyDepartmentOptions;
+        break;
+      case 'staffdepartment':
+        data = _academyStaffDepartmentOptions;
+        break;
+      case 'administrationdepartment':
+        data = _administrationDepartmentOptions;
+        break;
+      case 'servicedepartment':
+        data = _serviceDepartmentOptions;
+        break;
+    }
+
+    if (data == null) return [];
+    final faculties = data.map((e) => e['faculty']!).toSet().toList();
+    faculties.sort();
+    return faculties;
+  }
+
+  static List<String> getDepartmentsForFaculty(
+    String tableType,
+    String faculty,
+  ) {
+    List<Map<String, String>>? data;
+    switch (tableType) {
+      case 'deanfaculty':
+        data = _deanFacultyOptions;
+        break;
+      case 'department':
+        data = _academyDepartmentOptions;
+        break;
+      case 'staffdepartment':
+        data = _academyStaffDepartmentOptions;
+        break;
+      case 'administrationdepartment':
+        data = _administrationDepartmentOptions;
+        break;
+      case 'servicedepartment':
+        data = _serviceDepartmentOptions;
+        break;
+    }
+
+    if (data == null) return [];
+    final departments = data
+        .where((e) => e['faculty'] == faculty)
+        .map((e) => e['department']!)
+        .toList();
+    departments.sort();
+    return departments;
+  }
+
+  static void clear() {
+    _designationCache = null;
+    _deanFacultyOptions = null;
+    _academyDepartmentOptions = null;
+    _academyStaffDepartmentOptions = null;
+    _administrationDepartmentOptions = null;
+    _serviceDepartmentOptions = null;
+    _isLoaded = false;
+  }
+}
+
+// Helper class to get dynamic faculty/department pairs for dropdowns
+class FacultyDepartmentPair {
+  final String faculty;
+  final String department;
+
+  FacultyDepartmentPair(this.faculty, this.department);
+
+  @override
+  String toString() => '$faculty - $department';
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FacultyDepartmentPair &&
+          runtimeType == other.runtimeType &&
+          faculty == other.faculty &&
+          department == other.department;
+
+  @override
+  int get hashCode => faculty.hashCode ^ department.hashCode;
+}
+
+// Keep this for backward compatibility, but it will be removed later
 const List<String> deanOfficeDesignationOptions = [
   'সেকশন অফিসার',
   'সহকারী রেজিস্ট্রার',
@@ -220,9 +505,161 @@ class TableModel {
   /// Check if this table has a composite primary key
   bool get hasCompositePrimaryKey => primaryKeys.length > 1;
 
-  /// Build PlutoColumns if not explicitly provided, from simple column names.
+  /// Build PlutoColumns with dynamic dropdown data from cache
   List<PlutoColumn> buildPlutoColumns() {
-    if (plutoColumns != null && plutoColumns!.isNotEmpty) return plutoColumns!;
+    if (plutoColumns != null && plutoColumns!.isNotEmpty) {
+      // Update dropdown columns with dynamic data
+      return plutoColumns!.map((col) {
+        // Check if this column needs dynamic dropdown data
+        if (col.type is PlutoColumnTypeSelect) {
+          // Designation columns
+          if (col.field == 'designation') {
+            List<String> designations = [];
+            if (name == 'academy_deanoffice') {
+              designations = DropdownCache.getDesignations('deanoffice');
+            } else if (name == 'academy_teacher') {
+              designations = DropdownCache.getDesignations('teacher');
+            } else if (name == 'academy_staff') {
+              designations = DropdownCache.getDesignations('staff');
+            } else if (name == 'administration_administration') {
+              designations = DropdownCache.getDesignations('administration');
+            } else if (name == 'administration_services') {
+              designations = DropdownCache.getDesignations('services');
+            }
+
+            if (designations.isNotEmpty) {
+              return PlutoColumn(
+                title: col.title,
+                field: col.field,
+                type: PlutoColumnType.select(designations),
+                readOnly: col.readOnly,
+                frozen: col.frozen,
+                width: col.width,
+                enableRowDrag: col.enableRowDrag,
+                enableDropToResize: col.enableDropToResize,
+                enableEditingMode: col.enableEditingMode,
+              );
+            }
+          }
+
+          // Faculty columns - get unique faculties
+          if (col.field == 'faculty' || col.field == 'faculty_name') {
+            List<String> faculties = [];
+            if (name == 'academy_deanoffice') {
+              faculties = DropdownCache.getUniqueFaculties('deanfaculty');
+            } else if (name == 'academy_teacher') {
+              faculties = DropdownCache.getUniqueFaculties('department');
+            } else if (name == 'academy_staff') {
+              faculties = DropdownCache.getUniqueFaculties('staffdepartment');
+            } else if (name == 'administration_administration') {
+              faculties = DropdownCache.getUniqueFaculties(
+                'administrationdepartment',
+              );
+            } else if (name == 'administration_services') {
+              faculties = DropdownCache.getUniqueFaculties('servicedepartment');
+            }
+
+            if (faculties.isNotEmpty) {
+              return PlutoColumn(
+                title: col.title,
+                field: col.field,
+                type: PlutoColumnType.select(faculties),
+                readOnly: col.readOnly,
+                frozen: col.frozen,
+                width: col.width,
+                enableRowDrag: col.enableRowDrag,
+                enableDropToResize: col.enableDropToResize,
+                enableEditingMode: col.enableEditingMode,
+              );
+            }
+          }
+
+          // Department columns - note: these will show all departments initially
+          // In the grid, they'll be filtered based on selected faculty in the add dialog
+          if (col.field == 'department' || col.field == 'department_name') {
+            List<String> departments = [];
+            if (name == 'academy_deanoffice') {
+              departments =
+                  DropdownCache.getUniqueFaculties('deanfaculty')
+                      .expand(
+                        (fac) => DropdownCache.getDepartmentsForFaculty(
+                          'deanfaculty',
+                          fac,
+                        ),
+                      )
+                      .toSet()
+                      .toList()
+                    ..sort();
+            } else if (name == 'academy_teacher') {
+              departments =
+                  DropdownCache.getUniqueFaculties('department')
+                      .expand(
+                        (fac) => DropdownCache.getDepartmentsForFaculty(
+                          'department',
+                          fac,
+                        ),
+                      )
+                      .toSet()
+                      .toList()
+                    ..sort();
+            } else if (name == 'academy_staff') {
+              departments =
+                  DropdownCache.getUniqueFaculties('staffdepartment')
+                      .expand(
+                        (fac) => DropdownCache.getDepartmentsForFaculty(
+                          'staffdepartment',
+                          fac,
+                        ),
+                      )
+                      .toSet()
+                      .toList()
+                    ..sort();
+            } else if (name == 'administration_administration') {
+              departments =
+                  DropdownCache.getUniqueFaculties('administrationdepartment')
+                      .expand(
+                        (fac) => DropdownCache.getDepartmentsForFaculty(
+                          'administrationdepartment',
+                          fac,
+                        ),
+                      )
+                      .toSet()
+                      .toList()
+                    ..sort();
+            } else if (name == 'administration_services') {
+              departments =
+                  DropdownCache.getUniqueFaculties('servicedepartment')
+                      .expand(
+                        (fac) => DropdownCache.getDepartmentsForFaculty(
+                          'servicedepartment',
+                          fac,
+                        ),
+                      )
+                      .toSet()
+                      .toList()
+                    ..sort();
+            }
+
+            if (departments.isNotEmpty) {
+              return PlutoColumn(
+                title: col.title,
+                field: col.field,
+                type: PlutoColumnType.select(departments),
+                readOnly: col.readOnly,
+                frozen: col.frozen,
+                width: col.width,
+                enableRowDrag: col.enableRowDrag,
+                enableDropToResize: col.enableDropToResize,
+                enableEditingMode: col.enableEditingMode,
+              );
+            }
+          }
+        }
+
+        return col;
+      }).toList();
+    }
+
     return columns
         .map(
           (c) => PlutoColumn(
@@ -428,7 +865,7 @@ final List<TableModel> databaseTables = [
       PlutoColumn(
         title: 'Department Name',
         field: 'department_name',
-        type: PlutoColumnType.text(),
+        type: PlutoColumnType.select([]),
       ),
     ],
   ),
@@ -490,12 +927,12 @@ final List<TableModel> databaseTables = [
       PlutoColumn(
         title: 'Designation',
         field: 'designation',
-        type: PlutoColumnType.text(),
+        type: PlutoColumnType.select([]),
       ),
       PlutoColumn(
         title: 'Faculty',
         field: 'faculty',
-        type: PlutoColumnType.text(),
+        type: PlutoColumnType.select([]),
       ),
       PlutoColumn(
         title: 'Priority',
@@ -505,7 +942,7 @@ final List<TableModel> databaseTables = [
       PlutoColumn(
         title: 'Department',
         field: 'department',
-        type: PlutoColumnType.text(),
+        type: PlutoColumnType.select([]),
       ),
     ],
   ),
@@ -583,7 +1020,7 @@ final List<TableModel> databaseTables = [
       PlutoColumn(
         title: 'Department Name',
         field: 'department_name',
-        type: PlutoColumnType.text(),
+        type: PlutoColumnType.select([]),
       ),
       PlutoColumn(
         title: 'Profile Pic',
@@ -656,12 +1093,12 @@ final List<TableModel> databaseTables = [
       PlutoColumn(
         title: 'Faculty',
         field: 'faculty_name',
-        type: PlutoColumnType.text(),
+        type: PlutoColumnType.select([]),
       ),
       PlutoColumn(
         title: 'Department Name',
         field: 'department_name',
-        type: PlutoColumnType.text(),
+        type: PlutoColumnType.select([]),
       ),
     ],
   ),
@@ -726,6 +1163,8 @@ class AdminHome extends StatefulWidget {
 
 class _AdminHomeState extends State<AdminHome> {
   int _selectedIndex = 0;
+  bool _loadingDropdownData = true;
+  String? _dropdownLoadError;
 
   @override
   void initState() {
@@ -734,9 +1173,37 @@ class _AdminHomeState extends State<AdminHome> {
       if (supabase.auth.currentSession == null) {
         context.go('/signup');
       } else {
-        _checkRole();
+        _initializeAdmin();
       }
     });
+  }
+
+  Future<void> _initializeAdmin() async {
+    await _checkRole();
+    if (!mounted) return;
+
+    // Load dropdown data
+    setState(() {
+      _loadingDropdownData = true;
+      _dropdownLoadError = null;
+    });
+
+    try {
+      await DropdownCache.loadAllDropdownData();
+      if (mounted) {
+        setState(() {
+          _loadingDropdownData = false;
+        });
+      }
+    } catch (e, st) {
+      developer.log('Failed to load dropdown data', error: e, stackTrace: st);
+      if (mounted) {
+        setState(() {
+          _loadingDropdownData = false;
+          _dropdownLoadError = '$e';
+        });
+      }
+    }
   }
 
   Future<void> _checkRole() async {
@@ -761,6 +1228,58 @@ class _AdminHomeState extends State<AdminHome> {
 
   @override
   Widget build(BuildContext context) {
+    // Show loading screen while dropdown data is being fetched
+    if (_loadingDropdownData) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Admin Panel')),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16),
+              Text(
+                'Loading dropdown data from database...',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Show error screen if dropdown data failed to load
+    if (_dropdownLoadError != null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Admin Panel')),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: Colors.red),
+              const SizedBox(height: 16),
+              Text(
+                'Failed to load dropdown data',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                _dropdownLoadError!,
+                style: Theme.of(context).textTheme.bodyMedium,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                onPressed: _initializeAdmin,
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     final tables = databaseTables;
 
     return LayoutBuilder(
@@ -1117,6 +1636,33 @@ class _AdminTableViewState extends State<_AdminTableView> {
       builder: (ctx) {
         return StatefulBuilder(
           builder: (ctx, setS) {
+            // Helper to get department options based on selected faculty
+            List<String> getDepartmentOptions(String facultyField) {
+              final selectedFaculty =
+                  controllers[facultyField]?.text.trim() ?? '';
+              if (selectedFaculty.isEmpty) return [];
+
+              String tableType = '';
+              if (widget.table.name == 'academy_deanoffice') {
+                tableType = 'deanfaculty';
+              } else if (widget.table.name == 'academy_teacher') {
+                tableType = 'department';
+              } else if (widget.table.name == 'academy_staff') {
+                tableType = 'staffdepartment';
+              } else if (widget.table.name == 'administration_administration') {
+                tableType = 'administrationdepartment';
+              } else if (widget.table.name == 'administration_services') {
+                tableType = 'servicedepartment';
+              }
+
+              return tableType.isEmpty
+                  ? []
+                  : DropdownCache.getDepartmentsForFaculty(
+                      tableType,
+                      selectedFaculty,
+                    );
+            }
+
             return AlertDialog(
               title: Text(
                 'Add to ${widget.table.label}',
@@ -1137,11 +1683,20 @@ class _AdminTableViewState extends State<_AdminTableView> {
                               final type = col.type;
                               // If column is a select, render a dropdown with the provided items.
                               if (type is PlutoColumnTypeSelect) {
-                                final List<dynamic> rawItems = type.items;
-                                final items = rawItems
+                                List<String> items = type.items
                                     .map((e) => e?.toString() ?? '')
                                     .where((s) => s.isNotEmpty)
                                     .toList();
+
+                                // Special handling for department fields - get options based on selected faculty
+                                if (col.field == 'department' ||
+                                    col.field == 'department_name') {
+                                  final facultyField = col.field == 'department'
+                                      ? 'faculty'
+                                      : 'faculty_name';
+                                  items = getDepartmentOptions(facultyField);
+                                }
+
                                 final currentText = controllers[col.field]!.text
                                     .trim();
                                 final currentValue =
@@ -1149,8 +1704,9 @@ class _AdminTableViewState extends State<_AdminTableView> {
                                         !items.contains(currentText)
                                     ? null
                                     : currentText;
+
                                 return DropdownButtonFormField<String>(
-                                  initialValue: currentValue,
+                                  value: currentValue,
                                   items: items
                                       .map(
                                         (e) => DropdownMenuItem<String>(
@@ -1160,14 +1716,31 @@ class _AdminTableViewState extends State<_AdminTableView> {
                                       )
                                       .toList(),
                                   onChanged: (val) {
-                                    setS(
-                                      () => controllers[col.field]!.text =
-                                          val ?? '',
-                                    );
+                                    setS(() {
+                                      controllers[col.field]!.text = val ?? '';
+
+                                      // If faculty was changed, clear department
+                                      if (col.field == 'faculty' ||
+                                          col.field == 'faculty_name') {
+                                        final deptField = col.field == 'faculty'
+                                            ? 'department'
+                                            : 'department_name';
+                                        if (controllers.containsKey(
+                                          deptField,
+                                        )) {
+                                          controllers[deptField]!.text = '';
+                                        }
+                                      }
+                                    });
                                   },
                                   decoration: InputDecoration(
                                     labelText: col.title,
                                     border: const OutlineInputBorder(),
+                                    helperText:
+                                        (col.field == 'department' ||
+                                            col.field == 'department_name')
+                                        ? 'Select faculty first'
+                                        : null,
                                   ),
                                 );
                               }
